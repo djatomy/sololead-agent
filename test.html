@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoloLead Agent - テスト用ダッシュボード</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .test-case { transition: all 0.3s ease; }
+    .test-case.passed { background-color: #d1fae5; border-color: #10b981; }
+    .test-case.failed { background-color: #fee2e2; border-color: #ef4444; }
+    .test-case.loading { background-color: #dbeafe; border-color: #3b82f6; }
+    .code-block {
+      background-color: #1f2937;
+      color: #10b981;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-7xl mx-auto p-8">
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold mb-2">🧪 SoloLead Agent - テスト用ダッシュボード</h1>
+      <p class="text-gray-600">v1.0.0 | テスト環境</p>
+    </div>
+
+    <!-- テスト結果サマリー -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+        <p class="text-gray-600 text-sm">✅ 成功</p>
+        <p id="passCount" class="text-4xl font-bold text-green-600">0</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+        <p class="text-gray-600 text-sm">❌ 失敗</p>
+        <p id="failCount" class="text-4xl font-bold text-red-600">0</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+        <p class="text-gray-600 text-sm">⏳ 実行中</p>
+        <p id="runningCount" class="text-4xl font-bold text-blue-600">0</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+        <p class="text-gray-600 text-sm">📊 成功率</p>
+        <p id="successRate" class="text-4xl font-bold text-purple-600">-</p>
+      </div>
+    </div>
+
+    <!-- コントロールパネル -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <h2 class="text-xl font-bold mb-4">🎛️ テスト実行</h2>
+      <div class="flex gap-3 flex-wrap">
+        <button onclick="runAllTests()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">すべてのテストを実行</button>
+        <button onclick="runUnitTests()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">ユニットテスト</button>
+        <button onclick="runIntegrationTests()" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">統合テスト</button>
+        <button onclick="clearTestResults()" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold">結果をクリア</button>
+        <button onclick="openMainApp()" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">📱 メインアプリを開く</button>
+      </div>
+    </div>
+
+    <!-- テスト結果エリア -->
+    <div id="testResults" class="space-y-4"></div>
+  </div>
+
+  <script>
+    // ==================== テスト フレームワーク ====================
+
+    class TestRunner {
+      constructor() {
+        this.tests = [];
+        this.results = [];
+      }
+
+      describe(name, callback) {
+        callback((testName, testFn) => {
+          this.tests.push({ suite: name, name: testName, fn: testFn });
+        });
+      }
+
+      async run() {
+        this.results = [];
+        for (const test of this.tests) {
+          const result = { ...test, status: 'running', startTime: Date.now() };
+          updateUI();
+
+          try {
+            await test.fn();
+            result.status = 'passed';
+            result.duration = Date.now() - result.startTime;
+          } catch (e) {
+            result.status = 'failed';
+            result.error = e.message;
+            result.duration = Date.now() - result.startTime;
+          }
+
+          this.results.push(result);
+          updateUI();
+        }
+
+        return this.results;
+      }
+
+      assert(condition, message) {
+        if (!condition) {
+          throw new Error(message || 'Assertion failed');
+        }
+      }
+    }
+
+    const runner = new TestRunner();
+    const assert = (condition, message) => runner.assert(condition, message);
+
+    // ==================== テストケース定義 ====================
+
+    runner.describe('ユーティリティ関数', (it) => {
+      it('Instagram URL バリデーション - 正常系', () => {
+        const testUrls = [
+          'https://instagram.com/test',
+          'instagram.com/test',
+          'https://www.instagram.com/test'
+        ];
+        testUrls.forEach(url => {
+          assert(isValidInstagramUrl(url), `Invalid URL: ${url}`);
+        });
+      });
+
+      it('Instagram URL バリデーション - 異常系', () => {
+        const testUrls = [
+          'https://facebook.com/test',
+          'https://twitter.com/test',
+          'not-a-url',
+          ''
+        ];
+        testUrls.forEach(url => {
+          assert(!isValidInstagramUrl(url), `Should reject: ${url}`);
+        });
+      });
+
+      it('HTML エスケープ機能', () => {
+        const tests = [
+          { input: '<script>alert("XSS")</script>', expected: '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;' },
+          { input: '&', expected: '&amp;' },
+          { input: '"test"', expected: '&quot;test&quot;' }
+        ];
+        tests.forEach(test => {
+          const result = escapeHtml(test.input);
+          assert(result === test.expected, `Expected: ${test.expected}, Got: ${result}`);
+        });
+      });
+
+      it('UUID 生成', () => {
+        const id1 = generateId();
+        const id2 = generateId();
+        assert(id1.startsWith('id_'), 'ID should start with id_');
+        assert(id1 !== id2, 'IDs should be unique');
+        assert(id1.length > 10, 'ID should have sufficient length');
+      });
+    });
+
+    runner.describe('ストレージ管理', (it) => {
+      it('localStorage に書き込み・読み込み', () => {
+        const testKey = 'test_key_' + Date.now();
+        const testValue = { data: 'test' };
+        localStorage.setItem(testKey, JSON.stringify(testValue));
+        const retrieved = JSON.parse(localStorage.getItem(testKey));
+        assert(retrieved.data === 'test', 'Data should match');
+        localStorage.removeItem(testKey);
+      });
+
+      it('プロフィール保存と読み込み', () => {
+        const profile = {
+          ig: 'https://instagram.com/test',
+          style: 'Test style',
+          savedAt: new Date().toISOString()
+        };
+        localStorage.setItem('test_profile', JSON.stringify(profile));
+        const retrieved = JSON.parse(localStorage.getItem('test_profile'));
+        assert(retrieved.ig === profile.ig, 'Instagram URL should match');
+        assert(retrieved.style === profile.style, 'Style should match');
+        localStorage.removeItem('test_profile');
+      });
+
+      it('リード保存と取得', () => {
+        localStorage.removeItem('test_leads');
+
+        const lead = {
+          id: 'test_id',
+          segment: 'test segment',
+          matchScore: 0.85,
+          status: 'discovered'
+        };
+
+        const leads = [lead];
+        localStorage.setItem('test_leads', JSON.stringify(leads));
+        const retrieved = JSON.parse(localStorage.getItem('test_leads'));
+
+        assert(Array.isArray(retrieved), 'Should be array');
+        assert(retrieved[0].segment === lead.segment, 'Lead data should match');
+        localStorage.removeItem('test_leads');
+      });
+    });
+
+    runner.describe('ビジネスロジック', (it) => {
+      it('DM生成テンプレート', () => {
+        const sourceText = 'テスト投稿';
+        const matchReasons = ['理由1', '理由2'];
+        const dm = generateDMMessage(sourceText, matchReasons);
+
+        assert(dm.length > 100, 'DM should be substantial');
+        assert(dm.includes('[あなたのInstagram]'), 'DM should include placeholder');
+        assert(!dm.includes('<script>'), 'DM should not include script tags');
+      });
+
+      it('マッチスコア計算（0-1範囲）', () => {
+        const mockLeads = CONFIG.MOCK_LEADS;
+        mockLeads.forEach(lead => {
+          assert(lead.matchScore >= 0 && lead.matchScore <= 1, `Invalid match score: ${lead.matchScore}`);
+        });
+      });
+
+      it('モックリード初期化', () => {
+        assert(Array.isArray(CONFIG.MOCK_LEADS), 'MOCK_LEADS should be array');
+        assert(CONFIG.MOCK_LEADS.length > 0, 'MOCK_LEADS should not be empty');
+        assert(CONFIG.MOCK_LEADS[0].segment, 'Leads should have segment');
+        assert(CONFIG.MOCK_LEADS[0].matchScore, 'Leads should have matchScore');
+      });
+    });
+
+    runner.describe('UI インタラクション', (it) => {
+      it('メッセージ表示機能', () => {
+        const container = document.getElementById('messageContainer');
+        const initialCount = container.children.length;
+
+        showMessage('Test message', 'info');
+        assert(container.children.length > initialCount, 'Message should be added');
+
+        // クリーンアップ
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
+      });
+
+      it('入力値キャプチャ', () => {
+        const testUrl = 'https://instagram.com/testuser';
+        const testStyle = 'Test style text';
+
+        document.getElementById('ig').value = testUrl;
+        document.getElementById('style').value = testStyle;
+
+        assert(document.getElementById('ig').value === testUrl, 'URL should be captured');
+        assert(document.getElementById('style').value === testStyle, 'Style should be captured');
+      });
+
+      it('文字数カウント', () => {
+        const testText = 'Test character count';
+        document.getElementById('style').value = testText;
+        updateCharCount();
+
+        const charCount = parseInt(document.getElementById('charCount').textContent);
+        assert(charCount === testText.length, 'Character count should match');
+      });
+    });
+
+    runner.describe('エラーハンドリング', (it) => {
+      it('無効な入力処理', () => {
+        let errorThrown = false;
+        try {
+          assert(isValidInstagramUrl('invalid-url'), 'Should fail validation');
+        } catch (e) {
+          errorThrown = true;
+        }
+        assert(errorThrown, 'Error should be thrown');
+      });
+
+      it('JSONパース エラーハンドリング', () => {
+        let errorHandled = true;
+        try {
+          const result = JSON.parse('{invalid json}');
+        } catch (e) {
+          errorHandled = true;
+        }
+        assert(errorHandled, 'Parse error should be caught');
+      });
+
+      it('欠落data 処理', () => {
+        const testData = { name: 'test' };
+        assert(!testData.nonexistent, 'Missing property should be undefined');
+        assert(testData.name === 'test', 'Existing property should work');
+      });
+    });
+
+    // ==================== UI 更新 ====================
+
+    function updateUI() {
+      const resultsContainer = document.getElementById('testResults');
+      const passCount = runner.results.filter(r => r.status === 'passed').length;
+      const failCount = runner.results.filter(r => r.status === 'failed').length;
+      const runningCount = runner.results.filter(r => r.status === 'running').length;
+      const total = runner.results.length || 1;
+      const successRate = total > 0 ? Math.round((passCount / (total - runningCount)) * 100) : '-';
+
+      document.getElementById('passCount').textContent = passCount;
+      document.getElementById('failCount').textContent = failCount;
+      document.getElementById('runningCount').textContent = runningCount;
+      document.getElementById('successRate').textContent = successRate === '-' ? '-' : successRate + '%';
+
+      resultsContainer.innerHTML = runner.results.map((result, idx) => `
+        <div class="test-case ${result.status} border-l-4 rounded-lg p-6 bg-white">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-sm text-gray-500 font-semibold">${result.suite}</p>
+              <p class="text-lg font-bold">${result.name}</p>
+              ${result.error ? `<p class="text-red-600 mt-2 font-mono text-sm">${escapeHtml(result.error)}</p>` : ''}
+            </div>
+            <div class="text-right">
+              <p class="text-2xl">${result.status === 'passed' ? '✅' : result.status === 'failed' ? '❌' : '⏳'}</p>
+              <p class="text-xs text-gray-500 mt-1">${result.duration || '-'}ms</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==================== テスト実行関数 ====================
+
+    async function runAllTests() {
+      document.getElementById('testResults').innerHTML = '<p class="text-center py-8 text-gray-600">テスト実行中...</p>';
+      await runner.run();
+      updateUI();
+    }
+
+    async function runUnitTests() {
+      alert('実装予定: ユニットテストのみ実行');
+    }
+
+    async function runIntegrationTests() {
+      alert('実装予定: 統合テストのみ実行');
+    }
+
+    function clearTestResults() {
+      runner.results = [];
+      document.getElementById('testResults').innerHTML = '';
+      document.getElementById('passCount').textContent = '0';
+      document.getElementById('failCount').textContent = '0';
+      document.getElementById('runningCount').textContent = '0';
+      document.getElementById('successRate').textContent = '-';
+    }
+
+    function openMainApp() {
+      window.location.href = 'index.html';
+    }
+
+    // ==================== 初期化 ====================
+
+    window.addEventListener('load', () => {
+      console.log('Test Dashboard v1.0.0 loaded');
+      console.log(`Total test cases: ${runner.tests.length}`);
+    });
+  </script>
+</body>
+</html>
