@@ -1,0 +1,36 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build & Distribution
+dist/
+build/
+*.log
+*.bundle.*
+
+# Testing
+coverage/
+.nyc_output/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Local development
+.env.development.local
+debug.log
+*.pid
