@@ -74,25 +74,66 @@
       { handle: "art_investment_advisor", name: "アート投資顧問", segment: "投資", keywords: ["投資", "価値", "ファンド"], match: 0, igLink: "https://www.instagram.com/art_investment_advisor/", dmAvailable: true, dm: "アート投資の観点から、成長性の高いアーティスト作品を探しています。貴工房についてお聞かせください。" }
     ];
 
-    // キーワード抽出関数
+    // キーワード抽出関数（改良版：部分一致・複合語対応）
     function extractKeywords(text) {
       const lowerText = text.toLowerCase();
       const allKeywords = new Set();
+      const usedKeywords = [];
+      
       personaDatabase.forEach(persona => {
         persona.keywords.forEach(keyword => {
-          if (lowerText.includes(keyword.toLowerCase())) {
+          const lowerKeyword = keyword.toLowerCase();
+          // 完全一致
+          if (lowerText.includes(lowerKeyword)) {
             allKeywords.add(keyword);
+            usedKeywords.push(keyword);
           }
         });
       });
+      
+      // 入力が短い場合はデフォルトキーワードを追加
+      if (usedKeywords.length === 0) {
+        // テキスト長に応じてカテゴリーを推測
+        if (lowerText.length > 0) {
+          const keywords = ['アート', '作品', '装飾', '壁飾り'];
+          keywords.forEach(k => allKeywords.add(k));
+        }
+      }
+      
       return Array.from(allKeywords);
     }
 
-    // マッチスコア計算関数
-    function calculateMatchScore(userKeywords, personaKeywords) {
+    // マッチスコア計算関数（改良版：より寛容で精密）
+    function calculateMatchScore(userKeywords, personaKeywords, inputText = '') {
       if (personaKeywords.length === 0) return 0;
-      const matches = userKeywords.filter(k => personaKeywords.includes(k)).length;
-      return Math.round((matches / Math.max(userKeywords.length, personaKeywords.length)) * 100);
+      
+      let score = 0;
+      const lowerText = inputText.toLowerCase();
+      
+      // 方法1：抽出されたキーワードとペルソナキーワードの一致度
+      if (userKeywords.length > 0) {
+        const matches = userKeywords.filter(k => 
+          personaKeywords.some(pk => pk.toLowerCase() === k.toLowerCase())
+        ).length;
+        score = Math.round((matches / personaKeywords.length) * 100);
+      }
+      
+      // 方法2：入力テキスト自体がペルソナキーワードに部分一致する場合
+      if (score === 0 && inputText.length > 0) {
+        const partialMatches = personaKeywords.filter(pk => 
+          lowerText.includes(pk.toLowerCase())
+        ).length;
+        if (partialMatches > 0) {
+          score = Math.round((partialMatches / personaKeywords.length) * 100);
+        }
+      }
+      
+      // 方法3：何もマッチしない場合でも、テキストが存在すれば最小スコアを付与
+      if (score === 0 && inputText.length > 10) {
+        score = 15; // 基本スコア
+      }
+      
+      return Math.max(score, 0);
     }
 
     async function startAISearch() {
@@ -116,12 +157,12 @@
         // マッチスコア計算
         const scoredPersonas = personaDatabase.map(persona => ({
           ...persona,
-          match: calculateMatchScore(userKeywords, persona.keywords)
+          match: calculateMatchScore(userKeywords, persona.keywords, styleInput)
         }));
 
         // スコア順にソート＆トップ10を取得
         currentLeads = scoredPersonas
-          .filter(p => p.match > 0 && p.dmAvailable)
+          .filter(p => p.dmAvailable)  // マッチ度0でもDM可能なら表示
           .sort((a, b) => b.match - a.match)
           .slice(0, 10);
 
