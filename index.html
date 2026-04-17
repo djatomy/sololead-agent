@@ -35,54 +35,72 @@
   <script>
     async function startAISearch() {
       const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = `<div class="text-center py-20"><i class="fas fa-spinner fa-spin text-5xl text-amber-500"></i><p class="mt-6 text-zinc-400">AIが丁寧に需要を分析中...</p></div>`;
+      resultsDiv.innerHTML = `
+        <div class="text-center py-20">
+          <i class="fas fa-spinner fa-spin text-5xl text-amber-500"></i>
+          <p class="mt-6 text-zinc-400">AIがInstagram・Xを解析中...<br>公開アカウントを中心に需要を抽出しています</p>
+        </div>`;
 
       setTimeout(() => {
         const leads = [
           {
-            handle: "@newhome_lover2026",
-            name: "新築のお家を大切にされている方",
-            reason: "新居のインテリアに心を込めたアートを探されている様子",
+            handle: "newhome_lover2026",
+            name: "新築のお家を丁寧に整えている方",
+            reason: "Instagramで「新居 壁飾り アート 落ち着く」と投稿",
             match: 93,
-            dm: "新居おめでとうございます。\n\nお引っ越しという大切なタイミングで、空間に長く寄り添う作品をお探しではないかと思い、ご連絡させていただきました。\n\n私は和の静けさや自然の息吹をモチーフにした手刷りの版画を制作しています。もし少しでも気になられましたら、こちらのInstagramで作品をご覧いただけますと幸いです。"
+            igLink: "https://www.instagram.com/newhome_lover2026/",
+            dm: "新居おめでとうございます。\n\nお引っ越しという大切なタイミングで、空間に長く寄り添う作品をお探しではないかと思い、ご連絡させていただきました。\n\n私は和の静けさや自然の息吹をモチーフにした手刷りの版画を制作しています。もし少しでも気になられましたら、作品をご覧いただけますと幸いです。"
           },
           {
-            handle: "@yukari_wedding",
-            name: "結婚を控えていらっしゃる方",
-            reason: "結婚祝いに想いのこもった一点物を探されている",
-            match: 89,
-            dm: "結婚おめでとうございます。\n\n大切な人生の節目に、心に残る贈り物をお探しの方が多いようですね。\n\n私は特別な日にふさわしい、一点物の版画を丁寧に手刷りしています。もしよろしければ、私の作品を一度ご覧いただけますでしょうか？"
+            handle: "yukari_wedding",
+            name: "結婚を控えていらっしゃるカップル",
+            reason: "結婚祝いに想いのこもった一点物を探されている様子",
+            match: 88,
+            igLink: "https://www.instagram.com/yukari_wedding/",
+            dm: "結婚おめでとうございます。\n\n大切な人生の節目に、心に残る贈り物をお探しの方が多いようですね。\n\n私は特別な日にふさわしい、一点物の版画を丁寧に手刷りしています。よろしければ作品をご覧ください。"
           },
           {
-            handle: "@art_collector_jp",
-            name: "アートコレクターの方",
-            reason: "限定作品や手刷りの美術作品への関心が高い",
-            match: 87,
-            dm: "いつも素敵な作品を眺めておられるのですね。\n\n実は、私も同じようにアートの本質的な美しさに魅了されています。\n\n手刷りの版画による限定作品を制作しており、あなたのコレクションに加えていただける作品があるかもしれません。"
+            handle: "artcollector_kyoto",
+            name: "和風版画をコレクションされている方",
+            reason: "和風版画や木版画関連の投稿を頻繁にいいね・保存",
+            match: 91,
+            igLink: "https://www.instagram.com/artcollector_kyoto/",
+            dm: "いつも和風版画を熱心にご覧いただきありがとうございます。\n\n限定エディションの新作がございますので、ぜひ一度作品をご覧いただけますでしょうか。"
           }
         ];
 
-        let html = '<h3 class="text-lg font-medium mb-6 text-zinc-400">AIが発見した可能性の高い方々</h3>';
+        let html = '<h3 class="text-lg font-medium mb-6 text-zinc-400">AIが発見した可能性の高いアカウント</h3>';
 
         leads.forEach(lead => {
           html += `
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-7 hover:border-amber-500/30 transition-all">
-              <div class="flex justify-between">
+              <div class="flex justify-between items-start">
                 <div>
-                  <span class="text-emerald-400">${lead.handle}</span>
+                  <a href="${lead.igLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-medium text-lg">
+                    @${lead.handle}
+                  </a>
                   <h3 class="font-semibold text-lg mt-1">${lead.name}</h3>
                 </div>
-                <span class="text-emerald-400 font-medium">${lead.match}%</span>
+                <span class="px-5 py-2 bg-emerald-900/50 text-emerald-400 text-sm rounded-2xl">${lead.match}% マッチ</span>
               </div>
+              
               <p class="text-zinc-400 text-sm mt-4">${lead.reason}</p>
               
               <div class="mt-6 bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-[15px] leading-relaxed">
                 ${lead.dm}
               </div>
               
-              <button onclick="copyDM(this)" class="mt-6 w-full py-4 bg-zinc-800 hover:bg-amber-500 hover:text-black rounded-2xl transition-all font-medium">
-                📋 このDM文をコピー
-              </button>
+              <div class="mt-6 flex gap-3">
+                <a href="${lead.igLink}" target="_blank" 
+                   class="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-center font-medium text-sm flex items-center justify-center gap-2">
+                  <i class="fab fa-instagram"></i> Instagramを見る
+                </a>
+                <button onclick="copyDM(this)" class="flex-1 py-4 bg-amber-500 hover:bg-amber-600 text-black rounded-2xl font-medium">
+                  📋 DM文をコピー
+                </button>
+              </div>
+              
+              <p class="text-[10px] text-zinc-500 mt-4 text-center">※ DMが解放されていない可能性があります。プロフィール確認後、メッセージを送ってください。</p>
             </div>`;
         });
 
@@ -91,12 +109,11 @@
     }
 
     function copyDM(btn) {
-      const dmText = btn.previousElementSibling.textContent.trim();
+      const dmText = btn.parentElement.previousElementSibling.textContent.trim();
       navigator.clipboard.writeText(dmText).then(() => {
+        const original = btn.textContent;
         btn.innerHTML = '✅ コピーしました！';
-        setTimeout(() => {
-          btn.innerHTML = '📋 このDM文をコピー';
-        }, 2500);
+        setTimeout(() => { btn.innerHTML = original; }, 2500);
       });
     }
   </script>
