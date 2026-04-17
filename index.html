@@ -131,16 +131,16 @@
     function initPersonaDatabase() {
       personaDatabase = [
         // === カテゴリ1: 製造・メーカー／食品・飲料 ===
-        { category: "製造・メーカー", industry: "加工食品", handle: "food_brand_innovation", name: "加工食品ブランドマネージャー", followers: 8500, keywords: ["食品", "営業", "新商品開発", "販売", "流通"], segment: "BToB", dm: "当社の新商品ラインについてご相談させていただきたいのですが、いかがでしょうか。" },
-        { category: "製造・メーカー", industry: "加工食品", handle: "food_ecommerce_lead", name: "食品EC責任者", followers: 23000, keywords: ["食品", "ECサイト", "販売", "マーケティング"], segment: "BToC", dm: "ECプラットフォーム上での新しい販売施策について、パートナーシップをご検討いただけますか。" },
-        { category: "製造・メーカー", industry: "飲料", handle: "beverage_marketing_jp", name: "飲料メーカー企画部", followers: 45000, keywords: ["飲料", "ブランド", "企画", "プロモーション"], segment: "BToC", dm: "新商品のプロモーション活動で協力いただけるパートナーを探しています。" },
-        { category: "製造・メーカー", industry: "飲料", handle: "craft_beverage_curator", name: "クラフト飲料セレクター", followers: 12300, keywords: ["飲料", "クラフト", "品質", "選定"], segment: "BToC", dm: "質の良い飲料ブランドの発掘・紹介をしており、貴社のご紹介をさせていただきたいです。" },
-        { category: "製造・メーカー", industry: "菓子・スイーツ", handle: "confectionery_innovation", name: "菓子メーカー開発担当", followers: 6700, keywords: ["菓子", "スイーツ", "開発", "製造"], segment: "BToB", dm: "新しい製造技術や原料についてのご提案をお聞きしたいです。" },
-        { category: "製造・メーカー", industry: "菓子・スイーツ", handle: "sweet_gift_specialist", name: "ギフト用菓子セレクター", followers: 34000, keywords: ["菓子", "ギフト", "プレゼント", "品質"], segment: "BToC", dm: "高級ギフト需要に応える菓子ブランドをお探ししています。" },
-        { category: "製造・メーカー", industry: "化粧品", handle: "cosmetics_brand_manager", name: "化粧品ブランドマネージャー", followers: 52000, keywords: ["化粧品", "コスメ", "ブランド", "開発", "マーケティング"], segment: "BToC", dm: "新しい美容トレンドに対応したコラボレーション案をご提案させていただきたいです。" },
-        { category: "製造・メーカー", industry: "化粧品", handle: "skincare_research_lab", name: "スキンケア研究部門", followers: 18500, keywords: ["スキンケア", "美容科学", "研究", "開発"], segment: "BToB", dm: "革新的なスキンケア成分の共同開発についてお話しさせていただきたいのですが。" },
-        { category: "製造・メーカー", industry: "アパレル", handle: "fashion_brand_curator", name: "ファッションブランド企画", followers: 38000, keywords: ["ファッション", "アパレル", "トレンド", "デザイン"], segment: "BToC", dm: "次シーズンのコレクション方向性について、外部視点でのご意見をいただきたいです。" },
-        { category: "製造・メーカー", industry: "アパレル", handle: "sustainable_fashion_lead", name: "サステナブルファッションディレクター", followers: 21000, keywords: ["ファッション", "サステナブル", "環境", "社会責任"], segment: "BToC", dm: "環境配慮型ファッションの新しい表現方法についてコラボレーションをご検討いただけますか。" },
+        { category: "製造・メーカー", industry: "加工食品", handle: "food_brand_innovation", name: "加工食品ブランドマネージャー", followers: 8500, keywords: ["食品", "営業", "新商品開発", "販売", "流通"], segment: "BToB", igLink: "https://instagram.com/food_brand_innovation", dm: "当社の新商品ラインについてご相談させていただきたいのですが、いかがでしょうか。" },
+        { category: "製造・メーカー", industry: "加工食品", handle: "food_ecommerce_lead", name: "食品EC責任者", followers: 23000, keywords: ["食品", "ECサイト", "販売", "マーケティング"], segment: "BToC", igLink: "https://instagram.com/food_ecommerce_lead", dm: "ECプラットフォーム上での新しい販売施策について、パートナーシップをご検討いただけますか。" },
+        { category: "製造・メーカー", industry: "飲料", handle: "beverage_marketing_jp", name: "飲料メーカー企画部", followers: 45000, keywords: ["飲料", "ブランド", "企画", "プロモーション"], segment: "BToC", igLink: "https://instagram.com/beverage_marketing_jp", dm: "新商品のプロモーション活動で協力いただけるパートナーを探しています。" },
+        { category: "製造・メーカー", industry: "飲料", handle: "craft_beverage_curator", name: "クラフト飲料セレクター", followers: 12300, keywords: ["飲料", "クラフト", "品質", "選定"], segment: "BToC", igLink: "https://instagram.com/craft_beverage_curator", dm: "質の良い飲料ブランドの発掘・紹介をしており、貴社のご紹介をさせていただきたいです。" },
+        { category: "製造・メーカー", industry: "菓子・スイーツ", handle: "confectionery_innovation", name: "菓子メーカー開発担当", followers: 6700, keywords: ["菓子", "スイーツ", "開発", "製造"], segment: "BToB", igLink: "https://instagram.com/confectionery_innovation", dm: "新しい製造技術や原料についてのご提案をお聞きしたいです。" },
+        { category: "製造・メーカー", industry: "菓子・スイーツ", handle: "sweet_gift_specialist", name: "ギフト用菓子セレクター", followers: 34000, keywords: ["菓子", "ギフト", "プレゼント", "品質"], segment: "BToC", igLink: "https://instagram.com/sweet_gift_specialist", dm: "高級ギフト需要に応える菓子ブランドをお探ししています。" },
+        { category: "製造・メーカー", industry: "化粧品", handle: "cosmetics_brand_manager", name: "化粧品ブランドマネージャー", followers: 52000, keywords: ["化粧品", "コスメ", "ブランド", "開発", "マーケティング"], segment: "BToC", igLink: "https://instagram.com/cosmetics_brand_manager", dm: "新しい美容トレンドに対応したコラボレーション案をご提案させていただきたいです。" },
+        { category: "製造・メーカー", industry: "化粧品", handle: "skincare_research_lab", name: "スキンケア研究部門", followers: 18500, keywords: ["スキンケア", "美容科学", "研究", "開発"], segment: "BToB", igLink: "https://instagram.com/skincare_research_lab", dm: "革新的なスキンケア成分の共同開発についてお話しさせていただきたいのですが。" },
+        { category: "製造・メーカー", industry: "アパレル", handle: "fashion_brand_curator", name: "ファッションブランド企画", followers: 38000, keywords: ["ファッション", "アパレル", "トレンド", "デザイン"], segment: "BToC", igLink: "https://instagram.com/fashion_brand_curator", dm: "次シーズンのコレクション方向性について、外部視点でのご意見をいただきたいです。" },
+        { category: "製造・メーカー", industry: "アパレル", handle: "sustainable_fashion_lead", name: "サステナブルファッションディレクター", followers: 21000, keywords: ["ファッション", "サステナブル", "環境", "社会責任"], segment: "BToC", igLink: "https://instagram.com/sustainable_fashion_lead", dm: "環境配慮型ファッションの新しい表現方法についてコラボレーションをご検討いただけますか。" },
 
         // === カテゴリ2: 製造・メーカー／生活用品 ===
         { category: "製造・メーカー", industry: "トイレタリー", handle: "personal_care_innovation", name: "パーソナルケア企画", followers: 15600, keywords: ["トイレタリー", "日用品", "企画", "消費者"], segment: "BToC", dm: "新しいパーソナルケア製品のコンセプト検証についてご協力いただきたいです。" },
@@ -348,70 +348,61 @@
         return;
       }
 
-      let html = `<h3 class="text-2xl font-bold mb-6 text-blue-400">見つかった類似アカウント: ${currentResults.length}件</h3>`;
+      const colors = ['bg-blue-600', 'bg-purple-600', 'bg-pink-600', 'bg-green-600', 'bg-orange-600', 'bg-cyan-600', 'bg-red-600', 'bg-indigo-600'];
+      let html = '<h3 class="text-2xl font-bold mb-6 text-blue-400">見つかった類似アカウント: ' + currentResults.length + '件</h3>';
 
       currentResults.forEach((lead, idx) => {
         const followerLabel = lead.followers >= 100000 ? '10万以上' :
                              lead.followers >= 50000 ? '5-10万' :
                              lead.followers >= 10000 ? '1-5万' : '1万未満';
+        
+        const profileUrl = lead.igLink || ('https://instagram.com/' + lead.handle);
+        const bgColor = colors[idx % colors.length];
+        const initials = lead.name.substring(0, 2);
 
-        html += `
-          <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 mb-4 hover:border-blue-500/50 transition-all">
-            <div class="flex justify-between items-start mb-4">
-              <div class="flex-1">
-                <div class="flex items-center gap-3 mb-2">
-                  <span class="text-2xl font-bold text-blue-400">#${idx + 1}</span>
-                  <div>
-                    <h4 class="font-bold text-lg">${lead.name}</h4>
-                    <p class="text-sm text-zinc-400">@${lead.handle}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="text-right">
-                <span class="text-3xl font-bold text-cyan-400">${lead.matchScore}%</span>
-                <p class="text-xs text-zinc-400">マッチ度</p>
-              </div>
-            </div>
+        html += '<div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 mb-4 hover:border-blue-500/50 transition-all">';
+        html += '<div class="flex justify-between items-start mb-4">';
+        html += '<div class="flex-1">' +
+                '<div class="flex items-center gap-4 mb-2">' +
+                '<span class="text-2xl font-bold text-blue-400">#' + (idx + 1) + '</span>' +
+                '<a href="' + profileUrl + '" target="_blank" rel="noopener" class="flex-shrink-0 hover:opacity-80 transition-opacity">' +
+                '<div class="' + bgColor + ' w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white/20 hover:border-white/40">' +
+                initials + '</div></a>';
+        html += '<div class="flex-1">';
+        html += '<a href="' + profileUrl + '" target="_blank" rel="noopener" class="hover:text-blue-300 transition-colors">';
+        html += '<h4 class="font-bold text-lg text-white hover:text-blue-300">' + lead.name + '</h4></a>';
+        html += '<a href="' + profileUrl + '" target="_blank" rel="noopener" class="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">';
+        html += '<i class="fas fa-external-link-alt"></i> @' + lead.handle + '</a></div></div></div>';
+        html += '<div class="text-right"><span class="text-3xl font-bold text-cyan-400">' + lead.matchScore + '%</span>';
+        html += '<p class="text-xs text-zinc-400">マッチ度</p></div></div>';
 
-            <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
-              <div>
-                <span class="text-zinc-500">業界:</span>
-                <p class="font-medium">${lead.industry}</p>
-              </div>
-              <div>
-                <span class="text-zinc-500">フォロワー:</span>
-                <p class="font-medium">${lead.followers.toLocaleString()} <span class="text-xs text-zinc-400">(${followerLabel})</span></p>
-              </div>
-            </div>
+        html += '<div class="grid grid-cols-2 gap-4 mb-4 text-sm">' +
+                '<div><span class="text-zinc-500">業界:</span><p class="font-medium">' + lead.industry + '</p></div>' +
+                '<div><span class="text-zinc-500">フォロワー:</span><p class="font-medium">' + lead.followers.toLocaleString() + ' <span class="text-xs text-zinc-400">(' + followerLabel + ')</span></p></div>' +
+                '</div>';
 
-            <div class="bg-zinc-700 rounded-xl p-3 mb-4">
-              <p class="text-xs text-zinc-400 mb-2">📊 共通キーワード:</p>
-              <div class="flex flex-wrap gap-2">
-                ${lead.commonKeywords.map(k => `<span class="bg-blue-600/30 text-blue-300 px-2 py-1 rounded text-xs">${k}</span>`).join('')}
-              </div>
-            </div>
+        html += '<div class="bg-zinc-700 rounded-xl p-3 mb-4"><p class="text-xs text-zinc-400 mb-2">📊 共通キーワード:</p><div class="flex flex-wrap gap-2">' +
+                lead.commonKeywords.map(k => '<span class="bg-blue-600/30 text-blue-300 px-2 py-1 rounded text-xs">' + k + '</span>').join('') +
+                '</div></div>';
 
-            <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 mb-4 text-sm text-zinc-300">
-              <p class="text-xs text-zinc-500 mb-1">💬 メッセージサンプル:</p>
-              <p>${lead.dm}</p>
-            </div>
+        html += '<div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 mb-4 text-sm text-zinc-300">' +
+                '<p class="text-xs text-zinc-500 mb-1">💬 メッセージサンプル:</p>' +
+                '<p>' + lead.dm + '</p></div>';
 
-            <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-sm font-medium" data-idx="${idx}">
-              📋 メッセージをコピー
-            </button>
-          </div>`;
+        html += '<div class="flex gap-2">' +
+                '<a href="' + profileUrl + '" target="_blank" rel="noopener" class="flex-1 bg-zinc-700 hover:bg-zinc-600 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">' +
+                '<i class="fab fa-instagram"></i> Instagramで見る</a>' +
+                '<button class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors" data-idx="' + idx + '">' +
+                '📋 メッセージをコピー</button></div></div>';
       });
 
       resultsDiv.innerHTML = html;
-      
-      // イベントリスナーを後から追加
       resultsDiv.querySelectorAll('button[data-idx]').forEach(btn => {
         btn.addEventListener('click', function() {
           const idx = parseInt(this.dataset.idx);
           copyToClipboard(currentResults[idx].dm);
         });
       });
-
       document.getElementById('downloadBtn').classList.remove('hidden');
     }
 
