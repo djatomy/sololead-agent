@@ -3,262 +3,458 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoloLead Agent - AI版</title>
+  <title>類似アカウント検索ツール - Similarity Finder</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="bg-zinc-950 text-white">
-  <div class="max-w-6xl mx-auto p-8">
-    <div class="text-center mb-10">
-      <h1 class="text-5xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">SoloLead Agent</h1>
-      <p class="text-zinc-400 mt-3">オリジナル版画アーティストのためのAIニッチ需要発掘ツール</p>
+  <div class="max-w-7xl mx-auto p-8">
+    <!-- ヘッダー -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
+        <i class="fas fa-search"></i> 類似アカウント検索ツール
+      </h1>
+      <p class="text-zinc-400 mt-3">あなたのアカウント情報から、類似したターゲット層を自動検出</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <div class="lg:col-span-4 bg-zinc-900 rounded-3xl p-8">
-        <h2 class="text-xl font-semibold mb-6">あなたの版画情報</h2>
-        <input id="ig-url" value="https://instagram.com/yourprintstudio" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-6">
-        <textarea id="style" rows="4" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4">和風木版画、自然・植物モチーフ、繊細な手刷り</textarea>
-        
-        <button onclick="startAISearch()" class="mt-8 w-full bg-gradient-to-r from-amber-500 to-orange-500 py-5 rounded-2xl text-lg font-bold">
-          AIで需要を探す
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- 左パネル：入力 -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- アカウント情報入力 -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <i class="fas fa-user-circle text-blue-400"></i> 対象アカウント情報
+          </h2>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs text-zinc-400 block mb-2">📱 InstagramユーザーネームまたはURL</label>
+              <input id="accountInput" type="text" placeholder="@username or instagram.com/..." 
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-sm focus:border-blue-500 outline-none">
+            </div>
+            
+            <div>
+              <label class="text-xs text-zinc-400 block mb-2">📝 アカウント説明・プロフ情報</label>
+              <textarea id="bioInput" placeholder="フォロワーのプロフや投稿内容から抽出したキーワード、または自由な説明..." 
+                rows="4" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-sm focus:border-blue-500 outline-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- キーワード管理 -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <i class="fas fa-tags text-amber-400"></i> 抽出キーワード
+          </h2>
+          
+          <div id="keywordsList" class="space-y-2 min-h-[100px] max-h-[200px] overflow-y-auto bg-zinc-800 rounded-2xl p-4 mb-4">
+            <p class="text-zinc-500 text-sm">キーワードはここに表示されます...</p>
+          </div>
+          
+          <div class="space-y-2">
+            <button onclick="extractAndShowKeywords()" 
+              class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-2xl text-sm font-medium flex items-center justify-center gap-2">
+              <i class="fas fa-magic"></i> キーワード自動抽出
+            </button>
+            
+            <div class="flex gap-2">
+              <input id="newKeywordInput" type="text" placeholder="新しいキーワード追加..." 
+                class="flex-1 bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-2 text-sm outline-none">
+              <button onclick="addKeyword()" class="bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-2xl text-sm">
+                <i class="fas fa-plus"></i> 追加
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ソート・フィルター -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <i class="fas fa-sliders-h text-purple-400"></i> フォロワー数フィルター
+          </h2>
+          
+          <div class="space-y-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="followerRange" value="all" checked onchange="updateFilterUI()">
+              <span>全て</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="followerRange" value="under10k" onchange="updateFilterUI()">
+              <span>1万未満</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="followerRange" value="10k-50k" onchange="updateFilterUI()">
+              <span>1万〜5万未満</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="followerRange" value="50k-100k" onchange="updateFilterUI()">
+              <span>5万〜10万未満</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="followerRange" value="100k-plus" onchange="updateFilterUI()">
+              <span>10万以上</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 検索ボタン -->
+        <button onclick="startSimilaritySearch()" 
+          class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 py-5 rounded-2xl text-lg font-bold flex items-center justify-center gap-2">
+          <i class="fas fa-search"></i> 類似アカウントを検索
         </button>
         
-        <button id="downloadBtn" onclick="downloadLeads()" class="mt-3 w-full bg-zinc-700 hover:bg-zinc-600 py-3 rounded-2xl text-sm font-medium hidden">
-          📥 結果をダウンロード
+        <button id="downloadBtn" onclick="downloadResults()" 
+          class="w-full bg-zinc-700 hover:bg-zinc-600 py-3 rounded-2xl text-sm font-medium hidden flex items-center justify-center gap-2">
+          <i class="fas fa-download"></i> 結果をダウンロード
         </button>
       </div>
 
-      <div class="lg:col-span-8">
-        <div id="results" class="space-y-6"></div>
+      <!-- 右パネル：結果 -->
+      <div class="lg:col-span-3">
+        <div id="resultsContainer" class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 min-h-[500px]">
+          <div class="text-center py-20 text-zinc-400">
+            <i class="fas fa-inbox text-4xl mb-4 block"></i>
+            <p>左側でアカウント情報を入力し、「類似アカウントを検索」をクリックしてください。</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-
   <script>
-    let currentLeads = [];
+    // ================== グローバル変数 ==================
+    let currentKeywords = [];
+    let currentResults = [];
+    let personaDatabase = [];
 
-    // ペルソナデータベース（50+カテゴリ）
-    const personaDatabase = [
-      // インテリア関連
-      { handle: "interior_kyoto_design", name: "京都の高級インテリアデザイナー", segment: "インテリア", keywords: ["インテリア", "新築", "和", "デザイン", "壁飾り", "装飾"], match: 0, igLink: "https://www.instagram.com/interior_kyoto_design/", dmAvailable: true, dm: "いつも素敵なインテリアコーディネートをされているのですね。我が版画作品はクライアント向けの特別なアート作品として最適です。ぜひご相談ください。" },
-      { handle: "modern_home_styling", name: "モダンホーム・スタイリング専門家", segment: "インテリア", keywords: ["モダン", "新築", "壁", "リフォーム"], match: 0, igLink: "https://www.instagram.com/modern_home_styling/", dmAvailable: true, dm: "新しいお住まいの空間を素敵に彩るアート作品をお探しですか？手刷りの版画は一点ものとして特別な価値があります。" },
-      { handle: "minimalist_interior_jp", name: "ミニマリストインテリア専門", segment: "インテリア", keywords: ["ミニマル", "シンプル", "落ち着き", "色"], match: 0, igLink: "https://www.instagram.com/minimalist_interior_jp/", dmAvailable: true, dm: "シンプルで洗練された空間に映える、落ち着いた色調の版画作品をご紹介させていただきます。" },
-      // ギフト関連
-      { handle: "gift_selection_expert", name: "高級ギフト選定アドバイザー", segment: "ギフト", keywords: ["ギフト", "贈り物", "特別", "思い出", "プレゼント"], match: 0, igLink: "https://www.instagram.com/gift_selection_expert/", dmAvailable: true, dm: "特別な節目の贈り物として、一点ものの手刷り版画はいかがでしょうか。心に残る素敵なギフトになると思います。" },
-      { handle: "wedding_gift_curator", name: "結婚祝い・ブライダルギフト専門", segment: "ギフト", keywords: ["結婚", "祝い", "ブライダル", "新婚"], match: 0, igLink: "https://www.instagram.com/wedding_gift_curator/", dmAvailable: true, dm: "結婚祝いとして心に残る一点もの。手刷り版画は夫婦円満の象徴となる素敵なギフトです。" },
-      { handle: "anniversary_gift_jp", name: "記念日ギフト選定専門家", segment: "ギフト", keywords: ["記念日", "周年", "思い出", "特別"], match: 0, igLink: "https://www.instagram.com/anniversary_gift_jp/", dmAvailable: true, dm: "金婚式・銀婚式など大切な記念日に、思い出に残るアート作品をお勧めしています。" },
-      // コレクター
-      { handle: "art_collection_curator", name: "アートコレクション管理専門家", segment: "コレクター", keywords: ["コレクション", "美術", "投資", "作品"], match: 0, igLink: "https://www.instagram.com/art_collection_curator/", dmAvailable: true, dm: "貴重な美術作品の収集をお手伝いしています。手刷り版画は将来の収蔵価値も高いアイテムです。" },
-      { handle: "woodblock_print_lover", name: "木版画・版画愛好家", segment: "コレクター", keywords: ["版画", "木版", "刷り", "手刷り", "版"], match: 0, igLink: "https://www.instagram.com/woodblock_print_lover/", dmAvailable: true, dm: "版画をご愛好されているなら、ぜひ当工房の手刷り作品をご覧ください。江戸の伝統を継ぐ新作をご紹介します。" },
-      { handle: "contemporary_art_collector", name: "現代美術コレクター", segment: "コレクター", keywords: ["現代", "美術", "アート", "表現"], match: 0, igLink: "https://www.instagram.com/contemporary_art_collector/", dmAvailable: true, dm: "現代表現と伝統を融合させた作品に関心があります。貴工房の最新作をお聞かせください。" },
-      // 文化
-      { handle: "japan_culture_ambassador", name: "日本文化発信大使", segment: "文化", keywords: ["日本", "伝統", "文化", "工芸"], match: 0, igLink: "https://www.instagram.com/japan_culture_ambassador/", dmAvailable: true, dm: "日本文化の魅力を伝えるため、伝統工芸の作品を常に探しています。貴工房についてお聞かせください。" },
-      { handle: "kyoto_artisan_network", name: "京都職人ネットワーク", segment: "文化", keywords: ["京都", "職人", "技", "伝統工芸"], match: 0, igLink: "https://www.instagram.com/kyoto_artisan_network/", dmAvailable: true, dm: "京都の職人さんの活動を応援しています。版画制作の様子や想いについてお聞かせいただけますか。" },
-      { handle: "nature_inspired_artist", name: "自然モチーフ・アート愛好家", segment: "文化", keywords: ["自然", "モチーフ", "植物", "風景"], match: 0, igLink: "https://www.instagram.com/nature_inspired_artist/", dmAvailable: true, dm: "自然の美しさを表現した作品に関心があります。貴工房の自然モチーフ作品についてお聞かせください。" },
-      // 機関
-      { handle: "traditional_craft_museum", name: "伝統工芸・民芸館の学芸員", segment: "機関", keywords: ["伝統", "工芸", "民芸", "美術館"], match: 0, igLink: "https://www.instagram.com/traditional_craft_museum/", dmAvailable: true, dm: "当館では伝統工芸の後継者の作品を探しており、貴作品に強い関心をもっております。ご連絡ください。" },
-      { handle: "art_gallery_tokyo", name: "東京アートギャラリー運営者", segment: "機関", keywords: ["ギャラリー", "展示", "展覧会"], match: 0, igLink: "https://www.instagram.com/art_gallery_tokyo/", dmAvailable: true, dm: "当ギャラリーでは新しい表現に挑戦するアーティストを探しています。貴工房の展示可能性についてお聞かせください。" },
-      { handle: "small_gallery_network", name: "小規模ギャラリー連携ネットワーク", segment: "機関", keywords: ["ギャラリー", "ネットワーク", "連携"], match: 0, igLink: "https://www.instagram.com/small_gallery_network/", dmAvailable: true, dm: "独立系ギャラリーのネットワークです。全国の個性的な作品を取り扱っています。貴工房の作品についてお聞かせください。" },
-      { handle: "pop_up_event_organizer", name: "ポップアップイベント主催者", segment: "機関", keywords: ["イベント", "展示", "期間限定"], match: 0, igLink: "https://www.instagram.com/pop_up_event_organizer/", dmAvailable: true, dm: "期間限定のポップアップイベントを企画しています。貴工房の作品出展についてお問い合わせしたいです。" },
-      // 企業
-      { handle: "corporate_art_program", name: "企業アートプログラム・マネージャー", segment: "企業", keywords: ["企業", "ロビー", "装飾", "オフィス"], match: 0, igLink: "https://www.instagram.com/corporate_art_program/", dmAvailable: true, dm: "企業のロビーやオフィス空間に飾るアート作品を探しています。高級感のある版画は適切かもしれません。" },
-      { handle: "hotel_decoration_buyer", name: "ホテル・ラグジュアリー施設装飾担当", segment: "企業", keywords: ["ホテル", "施設", "装飾", "ラグジュアリー"], match: 0, igLink: "https://www.instagram.com/hotel_decoration_buyer/", dmAvailable: true, dm: "高級ホテルのロビーやスイートルームを飾る作品を探しています。手刷り版画はいかがでしょうか。" },
-      { handle: "restaurant_designer_tokyo", name: "高級レストラン・デザイナー", segment: "企業", keywords: ["レストラン", "飲食", "装飾", "空間"], match: 0, igLink: "https://www.instagram.com/restaurant_designer_tokyo/", dmAvailable: true, dm: "上質なレストラン空間に映えるアート作品をお探しです。貴工房の作品についてお聞かせください。" },
-      { handle: "office_wellness_curator", name: "ウェルネスオフィス・スペースデザイン", segment: "企業", keywords: ["オフィス", "ウェルネス", "環境", "健康"], match: 0, igLink: "https://www.instagram.com/office_wellness_curator/", dmAvailable: true, dm: "心を落ち着かせるアート環境の構築をしています。自然モチーフの版画は最適かもしれません。" },
-      // その他
-      { handle: "art_rental_service", name: "アートレンタルサービス運営", segment: "サービス", keywords: ["レンタル", "アート", "サービス"], match: 0, igLink: "https://www.instagram.com/art_rental_service/", dmAvailable: true, dm: "アートレンタルサービスを展開しており、様々な顧客ニーズに対応する作品を探しています。パートナーシップをお探りしたいです。" },
-      { handle: "museum_shop_buyer", name: "美術館ショップ・バイヤー", segment: "機関", keywords: ["美術館", "ショップ", "販売"], match: 0, igLink: "https://www.instagram.com/museum_shop_buyer/", dmAvailable: true, dm: "美術館のミュージアムショップで取り扱う作品を探しています。貴工房の販売可能な作品についてお聞かせください。" },
-      { handle: "craft_fair_organizer", name: "クラフトフェア・イベント主催", segment: "イベント", keywords: ["クラフト", "フェア", "工芸"], match: 0, igLink: "https://www.instagram.com/craft_fair_organizer/", dmAvailable: true, dm: "各地のクラフトフェアを企画しています。貴工房の出展についてお問い合わせしたいです。" },
-      { handle: "art_investment_advisor", name: "アート投資顧問", segment: "投資", keywords: ["投資", "価値", "ファンド"], match: 0, igLink: "https://www.instagram.com/art_investment_advisor/", dmAvailable: true, dm: "アート投資の観点から、成長性の高いアーティスト作品を探しています。貴工房についてお聞かせください。" }
-    ];
+    // ================== ペルソナDB初期化 ==================
+    function initPersonaDatabase() {
+      personaDatabase = [
+        // === カテゴリ1: 製造・メーカー／食品・飲料 ===
+        { category: "製造・メーカー", industry: "加工食品", handle: "food_brand_innovation", name: "加工食品ブランドマネージャー", followers: 8500, keywords: ["食品", "営業", "新商品開発", "販売", "流通"], segment: "BToB", dm: "当社の新商品ラインについてご相談させていただきたいのですが、いかがでしょうか。" },
+        { category: "製造・メーカー", industry: "加工食品", handle: "food_ecommerce_lead", name: "食品EC責任者", followers: 23000, keywords: ["食品", "ECサイト", "販売", "マーケティング"], segment: "BToC", dm: "ECプラットフォーム上での新しい販売施策について、パートナーシップをご検討いただけますか。" },
+        { category: "製造・メーカー", industry: "飲料", handle: "beverage_marketing_jp", name: "飲料メーカー企画部", followers: 45000, keywords: ["飲料", "ブランド", "企画", "プロモーション"], segment: "BToC", dm: "新商品のプロモーション活動で協力いただけるパートナーを探しています。" },
+        { category: "製造・メーカー", industry: "飲料", handle: "craft_beverage_curator", name: "クラフト飲料セレクター", followers: 12300, keywords: ["飲料", "クラフト", "品質", "選定"], segment: "BToC", dm: "質の良い飲料ブランドの発掘・紹介をしており、貴社のご紹介をさせていただきたいです。" },
+        { category: "製造・メーカー", industry: "菓子・スイーツ", handle: "confectionery_innovation", name: "菓子メーカー開発担当", followers: 6700, keywords: ["菓子", "スイーツ", "開発", "製造"], segment: "BToB", dm: "新しい製造技術や原料についてのご提案をお聞きしたいです。" },
+        { category: "製造・メーカー", industry: "菓子・スイーツ", handle: "sweet_gift_specialist", name: "ギフト用菓子セレクター", followers: 34000, keywords: ["菓子", "ギフト", "プレゼント", "品質"], segment: "BToC", dm: "高級ギフト需要に応える菓子ブランドをお探ししています。" },
+        { category: "製造・メーカー", industry: "化粧品", handle: "cosmetics_brand_manager", name: "化粧品ブランドマネージャー", followers: 52000, keywords: ["化粧品", "コスメ", "ブランド", "開発", "マーケティング"], segment: "BToC", dm: "新しい美容トレンドに対応したコラボレーション案をご提案させていただきたいです。" },
+        { category: "製造・メーカー", industry: "化粧品", handle: "skincare_research_lab", name: "スキンケア研究部門", followers: 18500, keywords: ["スキンケア", "美容科学", "研究", "開発"], segment: "BToB", dm: "革新的なスキンケア成分の共同開発についてお話しさせていただきたいのですが。" },
+        { category: "製造・メーカー", industry: "アパレル", handle: "fashion_brand_curator", name: "ファッションブランド企画", followers: 38000, keywords: ["ファッション", "アパレル", "トレンド", "デザイン"], segment: "BToC", dm: "次シーズンのコレクション方向性について、外部視点でのご意見をいただきたいです。" },
+        { category: "製造・メーカー", industry: "アパレル", handle: "sustainable_fashion_lead", name: "サステナブルファッションディレクター", followers: 21000, keywords: ["ファッション", "サステナブル", "環境", "社会責任"], segment: "BToC", dm: "環境配慮型ファッションの新しい表現方法についてコラボレーションをご検討いただけますか。" },
 
-    // キーワード抽出関数（改良版：部分一致・複合語対応）
-    function extractKeywords(text) {
-      const lowerText = text.toLowerCase();
-      const allKeywords = new Set();
-      const usedKeywords = [];
-      
+        // === カテゴリ2: 製造・メーカー／生活用品 ===
+        { category: "製造・メーカー", industry: "トイレタリー", handle: "personal_care_innovation", name: "パーソナルケア企画", followers: 15600, keywords: ["トイレタリー", "日用品", "企画", "消費者"], segment: "BToC", dm: "新しいパーソナルケア製品のコンセプト検証についてご協力いただきたいです。" },
+        { category: "製造・メーカー", industry: "トイレタリー", handle: "eco_cleaning_curator", name: "エコ洗剤セレクター", followers: 9800, keywords: ["洗剤", "環境", "エコ", "清潔"], segment: "BToC", dm: "環境にやさしい洗浄製品の新しいブランドを発掘・紹介しており、貴社をご紹介させていただきたいです。" },
+        { category: "製造・メーカー", industry: "医薬品", handle: "pharmaceutical_marketing", name: "医薬品マーケティング部", followers: 28000, keywords: ["医薬品", "ヘルスケア", "マーケティング"], segment: "BToB", dm: "医療関係者向けの新製品情報発信についてお相談させていただきたいのですが。" },
+        { category: "製造・メーカー", industry: "医薬品", handle: "wellness_product_scout", name: "ウェルネス製品スカウター", followers: 11200, keywords: ["医薬品", "ウェルネス", "健康", "サプリ"], segment: "BToC", dm: "高品質なウェルネス製品の発掘・紹介をしており、新しいブランドをお探ししています。" },
+        { category: "製造・メーカー", industry: "家具・インテリア", handle: "interior_furniture_designer", name: "インテリア家具デザイナー", followers: 42000, keywords: ["家具", "インテリア", "デザイン", "生活"], segment: "BToC", dm: "住空間トレンドに対応した新しい家具デザインについてご意見をお聞かせください。" },
+        { category: "製造・メーカー", industry: "家具・インテリア", handle: "sustainable_interior_curator", name: "サステナブルインテリアキュレーター", followers: 17300, keywords: ["家具", "インテリア", "サステナブル", "環境"], segment: "BToC", dm: "環境配慮型インテリアの新しいブランド・製品をお探ししており、貴社のご紹介をお聞きしたいです。" },
+        { category: "製造・メーカー", industry: "照明", handle: "lighting_innovation_lab", name: "照明開発研究室", followers: 13500, keywords: ["照明", "デザイン", "技術", "エネルギー"], segment: "BToB", dm: "次世代照明技術の共同開発について、パートナーシップをご検討いただけますか。" },
+        { category: "製造・メーカー", industry: "照明", handle: "lighting_interior_specialist", name: "照明インテリア専門家", followers: 8200, keywords: ["照明", "インテリア", "空間設計", "美学"], segment: "BToC", dm: "美しい空間作りに適した照明ソリューションについてのご相談をさせていただきたいです。" },
+
+        // === カテゴリ3: IT・通信・マスコミ ===
+        { category: "IT・通信・マスコミ", industry: "SaaS", handle: "saas_startup_founder", name: "SaaS企業CEO", followers: 26000, keywords: ["SaaS", "スタートアップ", "ビジネス", "技術"], segment: "BToB", dm: "マーケティング戦略についてのご意見をお聞きしたいのですが、いかがでしょうか。" },
+        { category: "IT・通信・マスコミ", industry: "SaaS", handle: "product_manager_tech", name: "テックプロダクトマネージャー", followers: 19800, keywords: ["SaaS", "プロダクト", "UX", "開発"], segment: "BToB", dm: "プロダクト開発の新しいアプローチについてご相談させていただきたいです。" },
+        { category: "IT・通信・マスコミ", industry: "Web制作", handle: "web_agency_director", name: "Web制作エージェンシー取締役", followers: 31000, keywords: ["Web", "デザイン", "制作", "企画"], segment: "BToB", dm: "クライアント案件でのコラボレーション機会についてお話しさせていただきたいです。" },
+        { category: "IT・通信・マスコミ", industry: "Web制作", handle: "freelance_designer_jp", name: "フリーランスデザイナー", followers: 12800, keywords: ["Web", "デザイン", "創造", "クリエイティブ"], segment: "BToC", dm: "新しいデザインプロジェクトへのお誘いやコラボレーション案があれば、お聞きしたいです。" },
+        { category: "IT・通信・マスコミ", industry: "SNS運用", handle: "social_media_strategist", name: "SNS戦略コンサルタント", followers: 47000, keywords: ["SNS", "マーケティング", "戦略", "ブランド"], segment: "BToC", dm: "ソーシャルメディア市場について、新しいトレンドをお聞きしたいのですが。" },
+        { category: "IT・通信・マスコミ", industry: "SNS運用", handle: "content_creator_growth", name: "コンテンツクリエイター育成", followers: 29800, keywords: ["SNS", "コンテンツ", "クリエイター", "成長"], segment: "BToC", dm: "クリエイター支援プログラムについてのご協力をご検討いただけますか。" },
+        { category: "IT・通信・マスコミ", industry: "マスコミ・出版", handle: "publishing_director", name: "出版社編集長", followers: 35000, keywords: ["出版", "編集", "コンテンツ", "メディア"], segment: "BToC", dm: "新しい出版企画についてのコラボレーション案があれば、お聞きしたいです。" },
+        { category: "IT・通信・マスコミ", industry: "マスコミ・出版", handle: "digital_media_curator", name: "デジタルメディアキュレーター", followers: 16900, keywords: ["メディア", "情報", "デジタル", "配信"], segment: "BToC", dm: "興味深いコンテンツやメディア案件についてのお話をお聞きしたいです。" },
+
+        // === カテゴリ4: サービス・コンサルティング ===
+        { category: "サービス・コンサルティング", industry: "経営コンサルティング", handle: "strategy_consultant_tokyo", name: "経営戦略コンサルタント", followers: 38000, keywords: ["経営", "戦略", "コンサルティング", "ビジネス"], segment: "BToB", dm: "クライアント企業のビジネス課題解決について、新しいアプローチをお相談したいです。" },
+        { category: "サービス・コンサルティング", industry: "経営コンサルティング", handle: "business_growth_coach", name: "ビジネス成長コーチ", followers: 21600, keywords: ["起業", "成長", "経営", "マインドセット"], segment: "BToC", dm: "起業家や経営者向けのプログラム開発についてのご協力をいただけますか。" },
+        { category: "サービス・コンサルティング", industry: "広告・マーケティング", handle: "advertising_agency_director", name: "広告代理店ディレクター", followers: 44000, keywords: ["広告", "マーケティング", "キャンペーン", "ブランド"], segment: "BToB", dm: "新しい広告キャンペーンのコンセプト開発についてコラボレーションをご検討いただけますか。" },
+        { category: "サービス・コンサルティング", industry: "広告・マーケティング", handle: "marketing_innovator", name: "マーケティング・イノベーター", followers: 33000, keywords: ["マーケティング", "イノベーション", "戦略", "データ"], segment: "BToB", dm: "次世代マーケティング手法の研究についてのご意見をお聞きしたいです。" },
+        { category: "サービス・コンサルティング", industry: "人材紹介", handle: "recruitment_specialist", name: "人材紹介スペシャリスト", followers: 19500, keywords: ["人材", "採用", "ビジネス"], segment: "BToB", dm: "優秀な人材確保についてのご相談やコラボレーション案があれば、お聞きしたいです。" },
+        { category: "サービス・コンサルティング", industry: "人材紹介", handle: "career_coach_jp", name: "キャリアコーチ", followers: 28000, keywords: ["キャリア", "成長", "人材育成"], segment: "BToC", dm: "キャリア開発プログラムについてのご協力やコラボレーション案についてお聞きしたいです。" },
+        { category: "サービス・コンサルティング", industry: "デザイン", handle: "brand_design_studio", name: "ブランドデザインスタジオ", followers: 24500, keywords: ["デザイン", "ブランド", "創造", "ビジュアル"], segment: "BToB", dm: "ブランド構築プロジェクトについてのコラボレーションをご検討いただけますか。" },
+        { category: "サービス・コンサルティング", industry: "デザイン", handle: "creative_director_tokyo", name: "クリエイティブディレクター", followers: 31200, keywords: ["クリエイティブ", "デザイン", "表現", "企画"], segment: "BToB", dm: "新しいクリエイティブプロジェクトについてのご意見をお聞きしたいのですが。" },
+
+        // === カテゴリ5: 小売・卸売 ===
+        { category: "小売・卸売", industry: "ECサイト運営", handle: "ecommerce_platform_manager", name: "EC運営責任者", followers: 27000, keywords: ["EC", "オンライン販売", "マーケティング"], segment: "BToB", dm: "ECプラットフォーム上での新しい販売施策についてのご相談をさせていただきたいです。" },
+        { category: "小売・卸売", industry: "ECサイト運営", handle: "online_shop_curator", name: "オンラインショップキュレーター", followers: 15200, keywords: ["EC", "商品選定", "ショッピング"], segment: "BToC", dm: "高品質な商品ラインアップの構築についてのご相談をさせていただきたいです。" },
+        { category: "小売・卸売", industry: "百貨店", handle: "department_store_buyer", name: "百貨店バイヤー", followers: 41000, keywords: ["百貨店", "商品", "ファッション", "ライフスタイル"], segment: "BToB", dm: "今シーズンの新しい商品提案についてお聞きしたいのですが、いかがでしょうか。" },
+        { category: "小売・卸売", industry: "百貨店", handle: "luxury_goods_specialist", name: "ラグジュアリーグッズスペシャリスト", followers: 22300, keywords: ["ラグジュアリー", "高級", "品質"], segment: "BToC", dm: "高級商品市場のトレンドについてのご意見をお聞きしたいです。" },
+        { category: "小売・卸売", industry: "専門販売", handle: "specialty_retailer_manager", name: "専門販売店マネージャー", followers: 18800, keywords: ["専門販売", "カテゴリ特化", "顧客"], segment: "BToB", dm: "専門カテゴリにおける新商品の取り扱いについてご相談させていただきたいです。" },
+        { category: "小売・卸売", industry: "商社・卸売", handle: "trading_company_executive", name: "総合商社営業部", followers: 39000, keywords: ["商社", "卸売", "BtoB", "流通"], segment: "BToB", dm: "大型取引についてのご相談やパートナーシップ構築についてお話しさせていただきたいです。" },
+
+        // === カテゴリ6: 金融・不動産 ===
+        { category: "金融・不動産", industry: "不動産デベロッパー", handle: "real_estate_developer_tokyo", name: "不動産開発企画", followers: 33000, keywords: ["不動産", "開発", "都市計画"], segment: "BToB", dm: "新規プロジェクトのための戦略的パートナーシップについてお相談させていただきたいです。" },
+        { category: "金融・不動産", industry: "不動産デベロッパー", handle: "property_investment_curator", name: "不動産投資キュレーター", followers: 19600, keywords: ["不動産", "投資", "資産"], segment: "BToC", dm: "不動産投資機会についてのご意見をお聞きしたいのですが、いかがでしょうか。" },
+        { category: "金融・不動産", industry: "銀行", handle: "bank_business_development", name: "銀行営業企画部", followers: 45000, keywords: ["金融", "銀行", "ビジネス"], segment: "BToB", dm: "新しい金融商品の開発・提供についてのご相談をさせていただきたいです。" },
+        { category: "金融・不動産", industry: "保険", handle: "insurance_product_manager", name: "保険商品企画", followers: 23800, keywords: ["保険", "リスク", "商品"], segment: "BToB", dm: "新しい保険商品ニーズの調査についてご協力いただけますか。" },
+        { category: "金融・不動産", industry: "保険", handle: "insurance_advisor_specialist", name: "保険アドバイザー", followers: 14500, keywords: ["保険", "相談", "ライフプラン"], segment: "BToC", dm: "ライフプランニングについてのご相談機会についてお聞きしたいです。" },
+
+        // === カテゴリ7: インフラ・建設・物流 ===
+        { category: "インフラ・建設・物流", industry: "ゼネコン", handle: "construction_company_director", name: "ゼネコン営業部長", followers: 37000, keywords: ["建設", "土木", "プロジェクト"], segment: "BToB", dm: "大型建設プロジェクトについてのパートナーシップをご検討いただけますか。" },
+        { category: "インフラ・建設・物流", industry: "ゼネコン", handle: "construction_innovation_lab", name: "建設イノベーション研究", followers: 16200, keywords: ["建設", "技術", "イノベーション"], segment: "BToB", dm: "建設業界の新しい技術動向についてのご意見をお聞きしたいです。" },
+        { category: "インフラ・建設・物流", industry: "物流・運輸", handle: "logistics_company_exec", name: "物流企業経営層", followers: 31500, keywords: ["物流", "運輸", "ロジスティクス"], segment: "BToB", dm: "サプライチェーン効率化についてのご相談をさせていただきたいです。" },
+        { category: "インフラ・建設・物流", industry: "物流・運輸", handle: "delivery_innovation_specialist", name: "配送イノベーション", followers: 20400, keywords: ["配送", "物流", "技術"], segment: "BToB", dm: "次世代配送システムの開発についてのご意見をお聞きしたいのですが。" },
+
+        // === カテゴリ8: 生活関連・レジャー ===
+        { category: "生活関連・レジャー", industry: "飲食店", handle: "restaurant_owner_network", name: "飲食店オーナー連盟", followers: 28600, keywords: ["飲食", "レストラン", "料理"], segment: "BToC", dm: "新規出店や既存店舗の改善についてのご相談をさせていただきたいです。" },
+        { category: "生活関連・レジャー", industry: "飲食店", handle: "food_culture_curator", name: "フード文化キュレーター", followers: 24100, keywords: ["食", "文化", "体験", "グルメ"], segment: "BToC", dm: "食文化の新しい表現や発信についてのご意見をお聞きしたいです。" },
+        { category: "生活関連・レジャー", industry: "旅行・宿泊", handle: "hotel_experience_designer", name: "ホテル体験デザイナー", followers: 32800, keywords: ["旅行", "宿泊", "体験", "ホテル"], segment: "BToC", dm: "宿泊体験の新しい提供方法についてのご協力をご検討いただけますか。" },
+        { category: "生活関連・レジャー", industry: "美容・ヘルスケア", handle: "beauty_salon_specialist", name: "美容サロン経営専門", followers: 19800, keywords: ["美容", "サロン", "ヘアケア"], segment: "BToC", dm: "サロンサービスの新しい提供方法についてのご相談をさせていただきたいです。" },
+        { category: "生活関連・レジャー", industry: "美容・ヘルスケア", handle: "wellness_specialist_jp", name: "ウェルネス専門家", followers: 35500, keywords: ["ウェルネス", "健康", "美容", "生活"], segment: "BToC", dm: "ホリスティック健康管理についてのご意見をお聞きしたいのですが。" },
+
+        // === カテゴリ9: 教育・公共 ===
+        { category: "教育・公共", industry: "教育機関", handle: "education_innovation_lab", name: "教育プログラム開発", followers: 21700, keywords: ["教育", "学習", "成長", "スキル"], segment: "BToB", dm: "新しい教育プログラムの開発についてのコラボレーションをご検討いただけますか。" },
+        { category: "教育・公共", industry: "教育機関", handle: "student_career_advisor", name: "学生キャリアアドバイザー", followers: 14200, keywords: ["教育", "キャリア", "就職"], segment: "BToC", dm: "学生向けキャリア支援プログラムについてのご協力をいただけますか。" },
+        { category: "教育・公共", industry: "公共機関", handle: "government_digital_transformation", name: "行政デジタル化推進", followers: 26800, keywords: ["公共", "行政", "デジタル"], segment: "BToB", dm: "自治体のデジタル化プロジェクトについてのご提案をさせていただきたいです。" }
+      ];
+    }
+
+    // ================== キーワード管理機能 ==================
+    function extractAndShowKeywords() {
+      const bioText = document.getElementById('bioInput').value.trim();
+      if (!bioText) {
+        alert('アカウント説明またはプロフ情報を入力してください。');
+        return;
+      }
+
+      currentKeywords = [];
+      const keywords = new Set();
+      const lowerText = bioText.toLowerCase();
+
+      // ペルソナDBから全キーワードを抽出
       personaDatabase.forEach(persona => {
         persona.keywords.forEach(keyword => {
-          const lowerKeyword = keyword.toLowerCase();
-          // 完全一致
-          if (lowerText.includes(lowerKeyword)) {
-            allKeywords.add(keyword);
-            usedKeywords.push(keyword);
+          if (lowerText.includes(keyword.toLowerCase())) {
+            keywords.add(keyword);
           }
         });
       });
-      
-      // 入力が短い場合はデフォルトキーワードを追加
-      if (usedKeywords.length === 0) {
-        // テキスト長に応じてカテゴリーを推測
-        if (lowerText.length > 0) {
-          const keywords = ['アート', '作品', '装飾', '壁飾り'];
-          keywords.forEach(k => allKeywords.add(k));
-        }
+
+      // 抽出されたキーワードがない場合、テキストから単語を抽出
+      if (keywords.size === 0 && bioText.length > 5) {
+        const words = bioText.split(/[\s、。，！？・]+/).filter(w => w.length > 1);
+        words.slice(0, 10).forEach(w => keywords.add(w));
       }
-      
-      return Array.from(allKeywords);
+
+      currentKeywords = Array.from(keywords);
+      displayKeywords();
     }
 
-    // マッチスコア計算関数（改良版：より寛容で精密）
-    function calculateMatchScore(userKeywords, personaKeywords, inputText = '') {
-      if (personaKeywords.length === 0) return 0;
-      
-      let score = 0;
-      const lowerText = inputText.toLowerCase();
-      
-      // 方法1：抽出されたキーワードとペルソナキーワードの一致度
-      if (userKeywords.length > 0) {
-        const matches = userKeywords.filter(k => 
-          personaKeywords.some(pk => pk.toLowerCase() === k.toLowerCase())
-        ).length;
-        score = Math.round((matches / personaKeywords.length) * 100);
+    function addKeyword() {
+      const input = document.getElementById('newKeywordInput');
+      const keyword = input.value.trim();
+      if (keyword && !currentKeywords.includes(keyword)) {
+        currentKeywords.push(keyword);
+        input.value = '';
+        displayKeywords();
       }
-      
-      // 方法2：入力テキスト自体がペルソナキーワードに部分一致する場合
-      if (score === 0 && inputText.length > 0) {
-        const partialMatches = personaKeywords.filter(pk => 
-          lowerText.includes(pk.toLowerCase())
-        ).length;
-        if (partialMatches > 0) {
-          score = Math.round((partialMatches / personaKeywords.length) * 100);
-        }
-      }
-      
-      // 方法3：何もマッチしない場合でも、テキストが存在すれば最小スコアを付与
-      if (score === 0 && inputText.length > 10) {
-        score = 15; // 基本スコア
-      }
-      
-      return Math.max(score, 0);
     }
 
-    async function startAISearch() {
-      const styleInput = document.getElementById('style').value.trim();
-      if (!styleInput) {
-        alert('作品スタイルを入力してください');
+    function removeKeyword(keyword) {
+      currentKeywords = currentKeywords.filter(k => k !== keyword);
+      displayKeywords();
+    }
+
+    function displayKeywords() {
+      const container = document.getElementById('keywordsList');
+      if (currentKeywords.length === 0) {
+        container.innerHTML = '<p class="text-zinc-500 text-sm">キーワードをここに表示します...</p>';
         return;
       }
 
-      const resultsDiv = document.getElementById('results');
+      let html = '';
+      currentKeywords.forEach((keyword, idx) => {
+        html += `
+          <div class="flex justify-between items-center bg-zinc-700 rounded-lg px-3 py-2">
+            <span class="text-sm">${keyword}</span>
+            <button onclick="removeKeywordByIndex(${idx})" class="text-red-400 hover:text-red-300 text-xs">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function removeKeywordByIndex(idx) {
+      currentKeywords.splice(idx, 1);
+      displayKeywords();
+    }
+
+    function updateFilterUI() {
+      // フィルター選択時の処理
+    }
+
+    // ================== 検索実行 ==================
+    function startSimilaritySearch() {
+      if (currentKeywords.length === 0) {
+        alert('キーワードを抽出・設定してから検索してください。');
+        return;
+      }
+
+      const resultsDiv = document.getElementById('resultsContainer');
       resultsDiv.innerHTML = `
         <div class="text-center py-20">
-          <i class="fas fa-spinner fa-spin text-5xl text-amber-500"></i>
-          <p class="mt-6 text-zinc-400">AIがスタイルを分析し、最適な見込み客層を抽出中...<br>キーワード解析 → マッチング → ランキング</p>
+          <i class="fas fa-spinner fa-spin text-5xl text-blue-400"></i>
+          <p class="mt-6 text-zinc-400">類似アカウントを検索中...<br>キーワード分析 → マッチング → ランキング</p>
         </div>`;
 
       setTimeout(() => {
-        // キーワード抽出
-        const userKeywords = extractKeywords(styleInput);
-        
-        // マッチスコア計算
-        const scoredPersonas = personaDatabase.map(persona => ({
+        performSimilaritySearch();
+      }, 2000);
+    }
+
+    function performSimilaritySearch() {
+      const followerRange = document.querySelector('input[name="followerRange"]:checked').value;
+
+      // マッチスコア計算
+      const scoredPersonas = personaDatabase.map(persona => {
+        const commonKeywords = persona.keywords.filter(k =>
+          currentKeywords.some(ck => ck.toLowerCase() === k.toLowerCase())
+        );
+        const matchScore = commonKeywords.length > 0 
+          ? Math.round((commonKeywords.length / persona.keywords.length) * 100)
+          : 15; // デフォルトスコア
+
+        return {
           ...persona,
-          match: calculateMatchScore(userKeywords, persona.keywords, styleInput)
-        }));
-
-        // スコア順にソート＆トップ10を取得
-        currentLeads = scoredPersonas
-          .filter(p => p.dmAvailable)  // マッチ度0でもDM可能なら表示
-          .sort((a, b) => b.match - a.match)
-          .slice(0, 10);
-
-        if (currentLeads.length === 0) {
-          resultsDiv.innerHTML = '<p class="text-center text-zinc-400 py-10">マッチするアカウントが見つかりませんでした。別のスタイル説明をお試しください。</p>';
-          return;
-        }
-
-        let html = `<h3 class="text-lg font-medium mb-2 text-zinc-400">AIが分析した見込み客層</h3>`;
-        html += `<div class="bg-zinc-800/50 border border-zinc-700 rounded-2xl p-4 mb-6">
-          <p class="text-xs text-zinc-400">📊 キーワード抽出: <span class="text-amber-400">${userKeywords.join(' • ')}</span></p>
-          <p class="text-xs text-zinc-400 mt-2">✓ マッチしたアカウント: <span class="font-bold text-emerald-400">${currentLeads.length}</span>件</p>
-        </div>`;
-
-        currentLeads.forEach((lead, idx) => {
-          html += `
-            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-7 hover:border-amber-500/30 transition-all">
-              <div class="flex justify-between items-start">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2">
-                    <span class="text-lg font-bold text-amber-400">#${idx + 1}</span>
-                    <a href="${lead.igLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-medium">
-                      @${lead.handle}
-                    </a>
-                  </div>
-                  <h3 class="font-semibold text-lg mt-2">${lead.name}</h3>
-                  <span class="text-xs bg-zinc-700 text-zinc-300 px-2 py-1 rounded mt-2 inline-block">${lead.segment}</span>
-                </div>
-                <div class="text-right">
-                  <span class="block text-3xl font-bold text-emerald-400">${lead.match}%</span>
-                  <span class="text-xs text-zinc-500">マッチ度</span>
-                </div>
-              </div>
-              
-              <p class="text-zinc-400 text-sm mt-4">📍 ${lead.name}が探しているアート作品の特徴に合致</p>
-              
-              <div class="mt-6 bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-[14px] leading-relaxed text-zinc-200 max-h-32 overflow-y-auto">
-                ${lead.dm}
-              </div>
-              
-              <div class="mt-6 flex gap-3">
-                <a href="${lead.igLink}" target="_blank" 
-                   class="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-center font-medium text-sm flex items-center justify-center gap-2">
-                  <i class="fab fa-instagram"></i> プロフィール確認
-                </a>
-                <button onclick="copyDM(this)" class="flex-1 py-4 bg-amber-500 hover:bg-amber-600 text-black rounded-2xl font-medium text-sm">
-                  📋 DM文をコピー
-                </button>
-              </div>
-            </div>`;
-        });
-
-        resultsDiv.innerHTML = html;
-        document.getElementById('downloadBtn').classList.remove('hidden');
-      }, 2500);
-    }
-
-    function copyDM(btn) {
-      const dmText = btn.parentElement.previousElementSibling.textContent.trim();
-      navigator.clipboard.writeText(dmText).then(() => {
-        const original = btn.textContent;
-        btn.innerHTML = '✅ コピーしました！';
-        setTimeout(() => { btn.innerHTML = original; }, 2500);
+          matchScore,
+          commonKeywords
+        };
       });
+
+      // フォロワー数でフィルター
+      let filtered = scoredPersonas;
+      if (followerRange !== 'all') {
+        filtered = scoredPersonas.filter(p => {
+          if (followerRange === 'under10k') return p.followers < 10000;
+          if (followerRange === '10k-50k') return p.followers >= 10000 && p.followers < 50000;
+          if (followerRange === '50k-100k') return p.followers >= 50000 && p.followers < 100000;
+          if (followerRange === '100k-plus') return p.followers >= 100000;
+          return true;
+        });
+      }
+
+      // スコア順にソート
+      currentResults = filtered
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, 20);
+
+      displayResults();
     }
 
-    function downloadLeads() {
-      if (currentLeads.length === 0) {
-        alert('ダウンロードするリードがありません。先に「AIで需要を探す」を実行してください。');
+    function displayResults() {
+      const resultsDiv = document.getElementById('resultsContainer');
+
+      if (currentResults.length === 0) {
+        resultsDiv.innerHTML = '<p class="text-center text-zinc-400 py-10">マッチするアカウントが見つかりませんでした。別のキーワードをお試しください。</p>';
         return;
       }
 
-      // CSV形式で生成
-      const headers = ['ハンドル', 'アカウント名', '発見理由', 'マッチ度', 'InstagramURL', 'DM例'];
-      const rows = currentLeads.map(lead => [
-        lead.handle,
-        lead.name,
-        lead.reason,
-        lead.match + '%',
-        lead.igLink,
-        lead.dm.replace(/\n/g, ' ')
-      ]);
+      let html = `<h3 class="text-2xl font-bold mb-6 text-blue-400">見つかった類似アカウント: ${currentResults.length}件</h3>`;
 
-      // CSV形式に変換
-      let csv = headers.map(h => `"${h}"`).join(',') + '\n';
-      csv += rows.map(row => 
-        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
-      ).join('\n');
+      currentResults.forEach((lead, idx) => {
+        const followerLabel = lead.followers >= 100000 ? '10万以上' :
+                             lead.followers >= 50000 ? '5-10万' :
+                             lead.followers >= 10000 ? '1-5万' : '1万未満';
 
-      // ファイルダウンロード
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        html += `
+          <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 mb-4 hover:border-blue-500/50 transition-all">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="text-2xl font-bold text-blue-400">#${idx + 1}</span>
+                  <div>
+                    <h4 class="font-bold text-lg">${lead.name}</h4>
+                    <p class="text-sm text-zinc-400">@${lead.handle}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-3xl font-bold text-cyan-400">${lead.matchScore}%</span>
+                <p class="text-xs text-zinc-400">マッチ度</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+              <div>
+                <span class="text-zinc-500">業界:</span>
+                <p class="font-medium">${lead.industry}</p>
+              </div>
+              <div>
+                <span class="text-zinc-500">フォロワー:</span>
+                <p class="font-medium">${lead.followers.toLocaleString()} <span class="text-xs text-zinc-400">(${followerLabel})</span></p>
+              </div>
+            </div>
+
+            <div class="bg-zinc-700 rounded-xl p-3 mb-4">
+              <p class="text-xs text-zinc-400 mb-2">📊 共通キーワード:</p>
+              <div class="flex flex-wrap gap-2">
+                ${lead.commonKeywords.map(k => `<span class="bg-blue-600/30 text-blue-300 px-2 py-1 rounded text-xs">${k}</span>`).join('')}
+              </div>
+            </div>
+
+            <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 mb-4 text-sm text-zinc-300">
+              <p class="text-xs text-zinc-500 mb-1">💬 メッセージサンプル:</p>
+              <p>${lead.dm}</p>
+            </div>
+
+            <button class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-sm font-medium" data-idx="${idx}">
+              📋 メッセージをコピー
+            </button>
+          </div>`;
+      });
+
+      resultsDiv.innerHTML = html;
+      
+      // イベントリスナーを後から追加
+      resultsDiv.querySelectorAll('button[data-idx]').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const idx = parseInt(this.dataset.idx);
+          copyToClipboard(currentResults[idx].dm);
+        });
+      });
+
+      document.getElementById('downloadBtn').classList.remove('hidden');
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('コピーしました！');
+      });
+    }
+
+    // ================== ダウンロード機能 ==================
+    function downloadResults() {
+      if (currentResults.length === 0) {
+        alert('ダウンロードするデータがありません。');
+        return;
+      }
+
+      const csv = [
+        ['順位', 'アカウント名', 'ハンドル', '業界', 'セグメント', 'フォロワー数', 'マッチ度', '共通キーワード', 'メッセージ'],
+        ...currentResults.map((lead, idx) => [
+          idx + 1,
+          lead.name,
+          lead.handle,
+          lead.industry,
+          lead.segment,
+          lead.followers,
+          lead.matchScore + '%',
+          lead.commonKeywords.join(', '),
+          lead.dm
+        ])
+      ];
+
+      const csvText = csv.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `sololead_accounts_${new Date().toISOString().slice(0,10)}.csv`;
+      link.download = `similar_accounts_${new Date().getTime()}.csv`;
       link.click();
     }
+
+    // ================== 初期化 ==================
+    window.addEventListener('DOMContentLoaded', () => {
+      initPersonaDatabase();
+    });
   </script>
 </body>
 </html>
