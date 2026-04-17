@@ -365,13 +365,13 @@
         html += '<div class="flex-1">' +
                 '<div class="flex items-center gap-4 mb-2">' +
                 '<span class="text-2xl font-bold text-blue-400">#' + (idx + 1) + '</span>' +
-                '<button onclick="openLink('' + profileUrl.replace(/'/g, "\'") + '')" class="flex-shrink-0 hover:opacity-80 transition-opacity border-none bg-none p-0" style="cursor:pointer;">' +
+                '<button class="link-icon flex-shrink-0 hover:opacity-80 transition-opacity border-none bg-none p-0" style="cursor:pointer;" data-url="' + profileUrl + '">' +
                 '<div class="' + bgColor + ' w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white/20 hover:border-white/40">' +
                 initials + '</div></button>';
         html += '<div class="flex-1">';
-        html += '<button onclick="openLink('' + profileUrl.replace(/'/g, "\'") + '')" style="background:none;border:none;cursor:pointer;text-align:left;padding:0;margin:0;" class="hover:text-blue-300 transition-colors">';
+        html += '<button class="link-name" style="background:none;border:none;cursor:pointer;text-align:left;padding:0;margin:0;" data-url="' + profileUrl + '" class="hover:text-blue-300 transition-colors">';
         html += '<h4 class="font-bold text-lg text-white hover:text-blue-300">' + lead.name + '</h4></button>';
-        html += '<button onclick="openLink('' + profileUrl.replace(/'/g, "\'") + '')" style="background:none;border:none;cursor:pointer;padding:0;margin:0;text-align:left;" class="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">';
+        html += '<button class="link-handle" style="background:none;border:none;cursor:pointer;padding:0;margin:0;text-align:left;" data-url="' + profileUrl + '" class="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">';
         html += '<i class="fas fa-external-link-alt"></i> @' + lead.handle + '</button></div></div></div>';
         html += '<div class="text-right"><span class="text-3xl font-bold text-cyan-400">' + lead.matchScore + '%</span>';
         html += '<p class="text-xs text-zinc-400">マッチ度</p></div></div>';
@@ -390,19 +390,34 @@
                 '<p>' + lead.dm + '</p></div>';
 
         html += '<div class="flex gap-2">' +
-                '<button onclick="openLink('' + profileUrl.replace(/'/g, "\'") + '')" class="flex-1 bg-zinc-700 hover:bg-zinc-600 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">' +
+                '<button class="link-btn flex-1 bg-zinc-700 hover:bg-zinc-600 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors" data-url="' + profileUrl + '">' +
                 '<i class="fab fa-instagram"></i> Instagramで見る</button>' +
                 '<button class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors" data-idx="' + idx + '">' +
                 '📋 メッセージをコピー</button></div></div>';
       });
 
       resultsDiv.innerHTML = html;
+      
+      // リンクボタンのイベントリスナー設定
+      resultsDiv.querySelectorAll('button.link-icon, button.link-name, button.link-handle, button.link-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const url = this.getAttribute('data-url');
+          if (url) {
+            console.log('Opening URL:', url);
+            window.open(url, '_blank');
+          }
+        });
+      });
+      
+      // メッセージコピーボタンのイベントリスナー設定
       resultsDiv.querySelectorAll('button[data-idx]').forEach(btn => {
         btn.addEventListener('click', function() {
           const idx = parseInt(this.dataset.idx);
           copyToClipboard(currentResults[idx].dm);
         });
       });
+      
       document.getElementById('downloadBtn').classList.remove('hidden');
     }
 
