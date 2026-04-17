@@ -3,640 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoloLead Agent - オリジナル版画営業支援ツール</title>
+  <title>SoloLead Agent - AI版</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      background: linear-gradient(135deg, #f5f3f0 0%, #f9f7f4 100%);
-      font-family: 'Lora', serif;
-    }
-    .title-font {
-      font-family: 'Playfair Display', serif;
-      letter-spacing: -0.5px;
-    }
-    .card-elegant {
-      background: linear-gradient(135deg, #ffffff 0%, #faf8f6 100%);
-      border: 1px solid rgba(139, 101, 79, 0.15);
-    }
-    .accent-brown { color: #8b654f; }
-    .accent-bronze { color: #a88860; }
-    .bg-accent-light { background-color: #f5f0eb; }
-    .border-accent { border-color: rgba(139, 101, 79, 0.2); }
-    .button-elegant {
-      background: linear-gradient(135deg, #6b5344 0%, #8b6f47 100%);
-      transition: all 0.3s ease;
-    }
-    .button-elegant:hover {
-      box-shadow: 0 8px 24px rgba(107, 83, 68, 0.3);
-      transform: translateY(-2px);
-    }
-    .result-card {
-      background: linear-gradient(135deg, #fefdf9 0%, #f9f7f4 100%);
-      border-left: 4px solid #a88860;
-    }
-  </style>
 </head>
-<body>
-  <div class="max-w-7xl mx-auto p-8">
-    <div class="mb-12 text-center">
-      <h1 class="text-5xl font-bold title-font accent-brown mb-2">SoloLead Agent</h1>
-      <p class="text-lg accent-bronze mb-2">オリジナル版画営業支援ツール</p>
-      <p class="text-sm text-gray-500 mb-4">ニッチな需要を発掘し、自然な営業をはじめる</p>
-      <div class="text-center">
-        <button id="devModeToggle" onclick="toggleDevMode()" class="text-xs px-4 py-1 bg-accent-light accent-brown rounded-full hover:bg-gray-300 border border-accent text-opacity-70">
-          🔧 開発者モード
-        </button>
-      </div>
+<body class="bg-zinc-950 text-white">
+  <div class="max-w-6xl mx-auto p-8">
+    <div class="text-center mb-10">
+      <h1 class="text-5xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">SoloLead Agent</h1>
+      <p class="text-zinc-400 mt-3">オリジナル版画アーティストのためのAIニッチ需要発掘ツール</p>
     </div>
 
-    <!-- エラー/メッセージ表示エリア -->
-    <div id="messageContainer" class="mb-6"></div>
-
-    <!-- 開発者用パネル（非表示） -->
-    <div id="devPanel" class="hidden mb-6 p-6 card-elegant border-2 border-accent rounded-2xl">
-      <h3 class="text-lg font-bold accent-brown mb-4">🔧 開発者用パネル</h3>
-      <div class="space-y-3 flex flex-wrap gap-2">
-        <button onclick="testValidation()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">バリデーションテスト</button>
-        <button onclick="testStorage()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">ストレージテスト</button>
-        <button onclick="testLeadGeneration()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">リード生成テスト</button>
-        <button onclick="clearAllData()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">全データ削除</button>
-        <button onclick="exportDebugInfo()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">デバッグ情報エクスポート</button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <!-- プロフィール設定 -->
-      <div class="lg:col-span-1 card-elegant rounded-3xl shadow-lg p-8">
-        <h2 class="text-xl font-semibold accent-brown mb-6 title-font">① 作品情報</h2>
-        <div class="mb-4">
-          <label for="ig" class="block text-sm font-medium accent-brown mb-2">Instagram URL</label>
-          <input id="ig" type="text" placeholder="https://instagram.com/yourprintstudio" class="w-full px-4 py-3 border border-accent bg-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent-brown focus:ring-opacity-50" value="https://instagram.com/yourprintstudio">
-          <small class="text-gray-600">有効なInstagram URLを入力してください</small>
-        </div>
-        <div class="mb-6">
-          <label for="style" class="block text-sm font-medium accent-brown mb-2">作品スタイル <span class="text-gray-500">(最大200文字)</span></label>
-          <textarea id="style" placeholder="作品スタイル" class="w-full h-32 px-4 py-3 border border-accent bg-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent-brown focus:ring-opacity-50" maxlength="200">和風木版画、自然モチーフ、繊細な手刷り</textarea>
-          <div class="text-xs text-gray-600 mt-1"><span id="charCount">47</span>/200</div>
-        </div>
-        <button id="saveBtn" onclick="saveProfile()" class="mt-6 w-full button-elegant text-white py-4 rounded-2xl font-semibold">💾 情報を保存</button>
-      </div>
-
-      <!-- リード管理＆検索 -->
-      <div class="lg:col-span-3 card-elegant rounded-3xl shadow-lg p-8">
-        <h2 class="text-xl font-semibold accent-brown mb-6 title-font">② ニッチな需要を探す</h2>
-        <button id="searchBtn" onclick="startSearch()" class="w-full button-elegant text-white py-6 rounded-3xl text-xl font-bold mb-8">
-          🔍 AIでニッチな需要を探す
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-4 bg-zinc-900 rounded-3xl p-8">
+        <h2 class="text-xl font-semibold mb-6">あなたの版画情報</h2>
+        <input id="ig-url" value="https://instagram.com/yourprintstudio" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-6">
+        <textarea id="style" rows="4" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4">和風木版画、自然・植物モチーフ、繊細な手刷り</textarea>
+        
+        <button onclick="startAISearch()" class="mt-8 w-full bg-gradient-to-r from-amber-500 to-orange-500 py-5 rounded-2xl text-lg font-bold">
+          AIで需要を探す
         </button>
-        
-        <!-- リード結果 -->
-        <div id="results" class="space-y-4"></div>
-        
-        <!-- リード一覧 -->
-        <div class="mt-8 pt-8 border-t border-accent">
-          <h3 class="text-lg font-semibold accent-brown mb-4 title-font">発掘済みリード一覧</h3>
-          <div id="leadList" class="space-y-3">
-            <p class="text-gray-500">リードはまだありません</p>
-          </div>
-          <button id="exportBtn" onclick="exportLeads()" class="mt-4 px-4 py-2 button-elegant text-white rounded-lg hover:opacity-90 hidden">📊 CSV エクスポート</button>
-        </div>
+      </div>
+
+      <div class="lg:col-span-8">
+        <div id="results" class="space-y-6"></div>
       </div>
     </div>
   </div>
 
+
   <script>
-    /**
-     * SoloLead Agent - Core Version 1.0.0
-     * ニッチ需要発掘＆DM自動化ツール
-     */
+    async function startAISearch() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = `<div class="text-center py-20"><i class="fas fa-spinner fa-spin text-5xl text-amber-500"></i><p class="mt-6 text-zinc-400">AIが丁寧に需要を分析中...</p></div>`;
 
-    // ==================== 定数定義 ====================
-    const CONFIG = {
-      VERSION: '1.0.0',
-      STORAGE_KEY_PROFILE: 'sololead_profile',
-      STORAGE_KEY_LEADS: 'sololead_leads',
-      MOCK_LEADS: [
-        {
-          segment: '新築インテリアを探している人',
-          matchScore: 0.89,
-          source: 'Instagram',
-          sourceText: '新居に合う壁飾りアートを探しています🏠',
-          matchReasons: ['新居', '壁飾り', 'インテリア']
-        },
-        {
-          segment: '結婚祝いを準備中の友人',
-          matchScore: 0.76,
-          source: 'Twitter',
-          sourceText: '結婚式までもう3ヶ月。プレゼント何にしよう',
-          matchReasons: ['結婚祝い', 'プレゼント']
-        },
-        {
-          segment: 'アート好きなコレクター',
-          matchScore: 0.82,
-          source: 'Instagram',
-          sourceText: 'この季節の限定版画をコレクション中📚',
-          matchReasons: ['版画', 'コレクション', 'アート']
-        }
-      ]
-    };
-
-    // ==================== ユーティリティ関数 ====================
-
-    /**
-     * テキストをHTMLエスケープしてXSS対策
-     */
-    function escapeHtml(text) {
-      const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-      };
-      return String(text).replace(/[&<>"']/g, m => map[m]);
-    }
-
-    /**
-     * Instagram URLのバリデーション
-     */
-    function isValidInstagramUrl(url) {
-      try {
-        const parsed = new URL(url.startsWith('http') ? url : 'https://' + url);
-        return parsed.hostname.includes('instagram.com');
-      } catch {
-        return false;
-      }
-    }
-
-    /**
-     * UUID 簡易生成
-     */
-    function generateId() {
-      return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    }
-
-    /**
-     * メッセージ表示（エラー/成功/情報）
-     */
-    function showMessage(message, type = 'info') {
-      const container = document.getElementById('messageContainer');
-      const colors = {
-        error: 'bg-red-50 border-red-200 text-red-700',
-        success: 'bg-green-50 border-green-200 text-green-700',
-        info: 'bg-blue-50 border-blue-200 text-blue-700'
-      };
-      const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
-
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `${colors[type]} border rounded-2xl p-4 flex justify-between items-center`;
-      msgDiv.innerHTML = `
-        <span>${icon} ${escapeHtml(message)}</span>
-        <button onclick="this.parentElement.remove()" class="hover:opacity-70 ml-2">✕</button>
-      `;
-      container.appendChild(msgDiv);
-
-      // 自動消去（エラーは5秒、その他は3秒）
-      const timeout = type === 'error' ? 5000 : 3000;
       setTimeout(() => {
-        if (msgDiv.parentElement) msgDiv.remove();
-      }, timeout);
-    }
+        const leads = [
+          {
+            handle: "@newhome_lover2026",
+            name: "新築のお家を大切にされている方",
+            reason: "新居のインテリアに心を込めたアートを探されている様子",
+            match: 93,
+            dm: "新居おめでとうございます。\n\nお引っ越しという大切なタイミングで、空間に長く寄り添う作品をお探しではないかと思い、ご連絡させていただきました。\n\n私は和の静けさや自然の息吹をモチーフにした手刷りの版画を制作しています。もし少しでも気になられましたら、こちらのInstagramで作品をご覧いただけますと幸いです。"
+          },
+          {
+            handle: "@yukari_wedding",
+            name: "結婚を控えていらっしゃる方",
+            reason: "結婚祝いに想いのこもった一点物を探されている",
+            match: 89,
+            dm: "結婚おめでとうございます。\n\n大切な人生の節目に、心に残る贈り物をお探しの方が多いようですね。\n\n私は特別な日にふさわしい、一点物の版画を丁寧に手刷りしています。もしよろしければ、私の作品を一度ご覧いただけますでしょうか？"
+          },
+          {
+            handle: "@art_collector_jp",
+            name: "アートコレクターの方",
+            reason: "限定作品や手刷りの美術作品への関心が高い",
+            match: 87,
+            dm: "いつも素敵な作品を眺めておられるのですね。\n\n実は、私も同じようにアートの本質的な美しさに魅了されています。\n\n手刷りの版画による限定作品を制作しており、あなたのコレクションに加えていただける作品があるかもしれません。"
+          }
+        ];
 
-    // ==================== ストレージ管理 ====================
+        let html = '<h3 class="text-lg font-medium mb-6 text-zinc-400">AIが発見した可能性の高い方々</h3>';
 
-    /**
-     * プロフィール保存
-     */
-    function saveProfile() {
-      const ig = document.getElementById('ig').value.trim();
-      const style = document.getElementById('style').value.trim();
-
-      // バリデーション
-      if (!ig) {
-        showMessage('Instagram URLを入力してください', 'error');
-        return false;
-      }
-
-      if (!isValidInstagramUrl(ig)) {
-        showMessage('有効なInstagram URLを入力してください (例: https://instagram.com/yourprofile)', 'error');
-        return false;
-      }
-
-      if (!style) {
-        showMessage('作品スタイルを入力してください', 'error');
-        return false;
-      }
-
-      if (style.length > 200) {
-        showMessage('作品スタイルは200文字以内で入力してください', 'error');
-        return false;
-      }
-
-      try {
-        const profile = {
-          id: localStorage.getItem(CONFIG.STORAGE_KEY_PROFILE) ? JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_PROFILE)).id : generateId(),
-          ig,
-          style,
-          savedAt: new Date().toISOString()
-        };
-        localStorage.setItem(CONFIG.STORAGE_KEY_PROFILE, JSON.stringify(profile));
-        showMessage('✅ プロフィールを保存しました！', 'success');
-        return true;
-      } catch (e) {
-        showMessage('プロフィール保存に失敗しました: ' + e.message, 'error');
-        console.error('Save error:', e);
-        return false;
-      }
-    }
-
-    /**
-     * プロフィール読み込み
-     */
-    function loadProfile() {
-      const profile = localStorage.getItem(CONFIG.STORAGE_KEY_PROFILE);
-      if (profile) {
-        try {
-          const data = JSON.parse(profile);
-          document.getElementById('ig').value = data.ig || '';
-          document.getElementById('style').value = data.style || '';
-          updateCharCount();
-        } catch (e) {
-          console.error('プロフィール読み込みエラー:', e);
-        }
-      }
-    }
-
-    /**
-     * リード保存
-     */
-    function saveLead(lead) {
-      try {
-        const leads = getLeads();
-        leads.push({
-          id: generateId(),
-          ...lead,
-          status: 'discovered',
-          dmSent: false,
-          createdAt: new Date().toISOString()
-        });
-        localStorage.setItem(CONFIG.STORAGE_KEY_LEADS, JSON.stringify(leads));
-        return true;
-      } catch (e) {
-        console.error('Lead save error:', e);
-        return false;
-      }
-    }
-
-    /**
-     * リード取得
-     */
-    function getLeads() {
-      try {
-        const leads = localStorage.getItem(CONFIG.STORAGE_KEY_LEADS);
-        return leads ? JSON.parse(leads) : [];
-      } catch (e) {
-        console.error('Lead fetch error:', e);
-        return [];
-      }
-    }
-
-    /**
-     * 文字数カウント更新
-     */
-    function updateCharCount() {
-      const count = document.getElementById('style').value.length;
-      document.getElementById('charCount').textContent = count;
-    }
-
-    // ==================== AI検索機能 ====================
-
-    /**
-     * AI検索実行
-     */
-    function startSearch() {
-      const profile = localStorage.getItem(CONFIG.STORAGE_KEY_PROFILE);
-      if (!profile) {
-        showMessage('先にプロフィール情報を保存してください', 'error');
-        return;
-      }
-
-      const searchBtn = document.getElementById('searchBtn');
-      const results = document.getElementById('results');
-
-      // ボタン無効化
-      searchBtn.disabled = true;
-
-      // ローディング表示
-      const loadingEl = document.createElement('div');
-      loadingEl.className = 'text-center py-10';
-      loadingEl.innerHTML = '<p class="text-gray-600">🔄 AIが最適なニッチ層を分析中です...</p>';
-      results.innerHTML = '';
-      results.appendChild(loadingEl);
-
-      // モック検索（1.5秒のシミュレーション）
-      setTimeout(() => {
-        try {
-          results.innerHTML = '';
-
-          // 5件のリードを表示
-          const leadsToShow = CONFIG.MOCK_LEADS.slice(0, 5);
-          
-          leadsToShow.forEach((mockLead, index) => {
-            // リード生成
-            const lead = {
-              segment: mockLead.segment,
-              matchScore: mockLead.matchScore,
-              source: mockLead.source,
-              sourceText: mockLead.sourceText,
-              matchReasons: mockLead.matchReasons
-            };
-
-            // UI表示
-            const resultDiv = document.createElement('div');
-            resultDiv.className = 'result-card rounded-2xl p-6';
-
-            const dmMessage = generateDMMessage(mockLead.sourceText, mockLead.matchReasons, mockLead.segment);
-
-            resultDiv.innerHTML = `
-              <div class="flex justify-between items-start mb-4">
+        leads.forEach(lead => {
+          html += `
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-7 hover:border-amber-500/30 transition-all">
+              <div class="flex justify-between">
                 <div>
-                  <div class="flex items-center gap-2 mb-2">
-                    <span class="text-2xl">✨</span>
-                    <p class="font-semibold accent-bronze text-lg">マッチ度 ${Math.round(mockLead.matchScore * 100)}%</p>
-                  </div>
-                  <p class="accent-brown font-medium text-base">${escapeHtml(mockLead.segment)}</p>
+                  <span class="text-emerald-400">${lead.handle}</span>
+                  <h3 class="font-semibold text-lg mt-1">${lead.name}</h3>
                 </div>
-                <span class="px-3 py-1 bg-gray-200 rounded-full text-sm text-gray-700">${mockLead.source}</span>
+                <span class="text-emerald-400 font-medium">${lead.match}%</span>
+              </div>
+              <p class="text-zinc-400 text-sm mt-4">${lead.reason}</p>
+              
+              <div class="mt-6 bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-[15px] leading-relaxed">
+                ${lead.dm}
               </div>
               
-              <p class="mt-3 text-sm text-gray-700 italic border-l-2 border-accent-bronze pl-3">「${escapeHtml(mockLead.sourceText)}」</p>
-              
-              <p class="mt-3 text-xs text-gray-600">マッチ理由: ${mockLead.matchReasons.map(r => escapeHtml(r)).join(' • ')}</p>
-              
-              <div class="mt-5 bg-white p-4 rounded-lg text-sm whitespace-pre-wrap text-gray-800 border border-accent text-base leading-relaxed">
-${escapeHtml(dmMessage)}
-              </div>
-              
-              <div class="mt-4 flex gap-2 flex-wrap">
-                <button onclick="copyText(this)" class="px-4 py-2 button-elegant text-white text-sm rounded-lg">📋 DM文をコピー</button>
-                <button onclick="saveLead('${escapeHtml(JSON.stringify(lead))}', this)" class="px-4 py-2 button-elegant text-white text-sm rounded-lg">💾 このリードを保存</button>
-              </div>
-            `;
+              <button onclick="copyDM(this)" class="mt-6 w-full py-4 bg-zinc-800 hover:bg-amber-500 hover:text-black rounded-2xl transition-all font-medium">
+                📋 このDM文をコピー
+              </button>
+            </div>`;
+        });
 
-            results.appendChild(resultDiv);
-          });
-
-          showMessage('🎉 5件のニッチな需要を発見しました。最も相応しいリードをお選びください。', 'success');
-
-        } catch (e) {
-          showMessage('検索中にエラーが発生しました: ' + e.message, 'error');
-          console.error('Search error:', e);
-          results.innerHTML = '';
-        } finally {
-          searchBtn.disabled = false;
-        }
-      }, 1500);
+        resultsDiv.innerHTML = html;
+      }, 2000);
     }
 
-    /**
-     * DM文生成（モック）
-     */
-    function generateDMMessage(sourceText, matchReasons, segment) {
-      const templates = [
-        // テンプレート1: 丁寧で共感的なアプローチ
-        `こんにちは。\n\nご投稿を拝見させていただき、${matchReasons[0]}についてのお気持ちが伝わってきました。\n\n実は、私も同じように${matchReasons[0]}の大切さを感じながら、日々手刷り版画の制作をしています。\n\nあなたのお探しの世界観が、私の作品の中にあるかもしれません。\n\nよろしければ、一度作品をご覧いただけますでしょうか？\n→ [あなたのInstagram]\n\n何かご質問やご感想があれば、お気軽にお返事ください。\nこちらこそ、素敵な出会いを楽しみにしています。`,
-
-        // テンプレート2: 親切・専門的なアプローチ
-        `こんにちは。\n\nあるとき、ご投稿が目に留まりました。\n${matchReasons.join('と')}についての真摯な想いが感じられたので、ご連絡させていただきました。\n\n私は、手刷りの版画を通じて、ものごとの本質的な美しさを表現する活動をしています。\n\nも、しあなたのお探しの「何か」が私の作品の中にあれば、幸いです。\n\n気になることやご質問があれば、ぜひお尋ねください。\nInstagramでは、制作の過程や想いも綴っています。\n→ [あなたのInstagram]\n\nご訪問をお待ちしています。`,
-
-        // テンプレート3: 親身で個性的なアプローチ
-        `おはようございます。\n\nいつも素敵な投稿をされているあなたの${matchReasons[0]}に関するお考えが、本当に素敵だなと感じていました。\n\n私は版画制作を通じて、${matchReasons[0]}の素晴らしさを多くの方に知ってもらいたいと活動しています。\n\nあなたのお気持ちや求めるスタイルが、私の作品の中に見つかるかもしれません。\n\n一度、Instagramでご紹介している作品をご覧になっていただけますでしょうか？\n→ [あなたのInstagram]\n\nご縁がありましたら、お返事をいただけますと嬉しいです。`,
-
-        // テンプレート4: 简潔で心をこめたアプローチ
-        `はじめまして。\n\nあなたのご投稿から、${matchReasons[0]}への想いが伝わってきました。\n\n私も、その世界観を大切にしながら、毎日手刷り版画の制作に向き合っています。\n\nもしよろしければ、私の作品を見ていただきたいです。\nあなたが求めるものが、少しでもお役に立てると幸いです。\n\nInstagramはこちら → [あなたのInstagram]\n\nご訪問をお待ちしています。`,
-
-        // テンプレート5: 優雅で洗練されたアプローチ
-        `こんにちは。\n\nご投稿を拝見させていただき、このような素敵な出会いをいただきました。\n\n${matchReasons[0]}という、あなたの大切にされていることが、私の版画制作の根底にもあります。\n\n伝統的な手刷り技法で表現した世界観が、あなたの空間や心に寄り添えるかもしれません。\n\nぜひ一度、私の作品の世界をのぞいてみてください。\nInstagram → [あなたのInstagram]\n\nご感想やご質問を、心よりお待ち申し上げています。`
-      ];
-
-      return templates[Math.floor(Math.random() * templates.length)];
-    }
-
-    /**
-     * DM文をクリップボードにコピー
-     */
-    function copyText(btn) {
-      const message = btn.closest('.bg-emerald-50').querySelector('.whitespace-pre-wrap').textContent;
-
-      navigator.clipboard.writeText(message).then(() => {
-        const originalText = btn.textContent;
-        btn.textContent = '✅ コピーしました！';
+    function copyDM(btn) {
+      const dmText = btn.previousElementSibling.textContent.trim();
+      navigator.clipboard.writeText(dmText).then(() => {
+        btn.innerHTML = '✅ コピーしました！';
         setTimeout(() => {
-          btn.textContent = originalText;
-        }, 2000);
-      }).catch(err => {
-        showMessage('コピーに失敗しました', 'error');
-        console.error('Copy error:', err);
+          btn.innerHTML = '📋 このDM文をコピー';
+        }, 2500);
       });
     }
-
-    /**
-     * リード保存
-     */
-    function saveLead(leadJson, btn) {
-      try {
-        const lead = JSON.parse(leadJson);
-        if (saveLead({
-          segment: lead.segment,
-          matchScore: lead.matchScore,
-          source: lead.source,
-          sourceText: lead.sourceText,
-          matchReasons: lead.matchReasons
-        })) {
-          showMessage('💾 リードを保存しました！', 'success');
-          btn.textContent = '✅ 保存済み';
-          btn.disabled = true;
-          updateLeadList();
-        }
-      } catch (e) {
-        showMessage('保存に失敗しました', 'error');
-        console.error('Save error:', e);
-      }
-    }
-
-    /**
-     * リード一覧更新
-     */
-    function updateLeadList() {
-      const leads = getLeads();
-      const leadList = document.getElementById('leadList');
-      const exportBtn = document.getElementById('exportBtn');
-
-      if (leads.length === 0) {
-        leadList.innerHTML = '<p class="text-gray-500 italic">リードはまだありません。「AIでニッチな需要を探す」から始めましょう。</p>';
-        exportBtn.classList.add('hidden');
-      } else {
-        exportBtn.classList.remove('hidden');
-        leadList.innerHTML = leads.map((lead, idx) => `
-          <div class="result-card rounded-lg p-4 border-l-4">
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <p class="font-semibold accent-brown">${escapeHtml(lead.segment)}</p>
-                <p class="text-sm text-gray-600 mt-1">マッチ度: <span class="font-semibold">${Math.round(lead.matchScore * 100)}%</span> • ${lead.source}</p>
-                <p class="text-xs text-gray-500 mt-2">${new Date(lead.createdAt).toLocaleString('ja-JP')}</p>
-              </div>
-              <button onclick="deleteLead(${idx})" class="text-gray-400 hover:text-red-500 transition ml-2">✕</button>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-
-    /**
-     * リード削除
-     */
-    function deleteLead(index) {
-      const leads = getLeads();
-      leads.splice(index, 1);
-      localStorage.setItem(CONFIG.STORAGE_KEY_LEADS, JSON.stringify(leads));
-      updateLeadList();
-      showMessage('リードを削除しました', 'success');
-    }
-
-    /**
-     * リードをCSVエクスポート
-     */
-    function exportLeads() {
-      const leads = getLeads();
-      const profile = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_PROFILE) || '{}');
-
-      const csv = [
-        ['アーティスト', profile.ig || 'N/A'],
-        [''],
-        ['セグメント', 'マッチ度', 'ソース', 'ソーステキスト', 'マッチ理由', '作成日時']
-      ].concat(leads.map(lead => [
-        lead.segment,
-        Math.round(lead.matchScore * 100) + '%',
-        lead.source,
-        lead.sourceText,
-        lead.matchReasons.join(';'),
-        new Date(lead.createdAt).toLocaleString('ja-JP')
-      ])).map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `sololead_leads_${Date.now()}.csv`;
-      link.click();
-      showMessage('📊 CSVをエクスポートしました', 'success');
-    }
-
-    // ==================== 開発者用テスト機能 ====================
-
-    /**
-     * 開発者モードの切り替え
-     */
-    function toggleDevMode() {
-      const devPanel = document.getElementById('devPanel');
-      devPanel.classList.toggle('hidden');
-    }
-
-    /**
-     * バリデーションテスト
-     */
-    function testValidation() {
-      console.log('=== バリデーションテスト ===');
-      
-      const tests = [
-        { url: 'https://instagram.com/test', expected: true, name: 'Valid Instagram URL' },
-        { url: 'instagram.com/test', expected: true, name: 'Instagram URL (no https)' },
-        { url: 'https://facebook.com/test', expected: false, name: 'Invalid URL (Facebook)' },
-        { url: 'not-a-url', expected: false, name: 'Invalid URL format' }
-      ];
-
-      let passed = 0;
-      tests.forEach(test => {
-        const result = isValidInstagramUrl(test.url);
-        const status = result === test.expected ? '✅' : '❌';
-        console.log(`${status} ${test.name}: ${result}`);
-        if (result === test.expected) passed++;
-      });
-
-      showMessage(`バリデーションテスト: ${passed}/${tests.length} 成功`, passed === tests.length ? 'success' : 'error');
-    }
-
-    /**
-     * ストレージテスト
-     */
-    function testStorage() {
-      console.log('=== ストレージテスト ===');
-      try {
-        localStorage.setItem('test_key', 'test_value');
-        const value = localStorage.getItem('test_key');
-        localStorage.removeItem('test_key');
-        showMessage('✅ localStorage 正常に動作しています', 'success');
-      } catch (e) {
-        showMessage('❌ ストレージエラー: ' + e.message, 'error');
-      }
-    }
-
-    /**
-     * リード生成テスト
-     */
-    function testLeadGeneration() {
-      console.log('=== リード生成テスト ===');
-      const mockLead = CONFIG.MOCK_LEADS[0];
-      const dmMessage = generateDMMessage(mockLead.sourceText, mockLead.matchReasons);
-      console.log('生成されたDM:\n', dmMessage);
-      showMessage('✅ DM生成テスト完了。コンソールを確認してください', 'success');
-    }
-
-    /**
-     * 全データ削除
-     */
-    function clearAllData() {
-      if (confirm('⚠️ すべてのデータ（プロフィール＆リード）を削除してもよろしいですか？')) {
-        localStorage.removeItem(CONFIG.STORAGE_KEY_PROFILE);
-        localStorage.removeItem(CONFIG.STORAGE_KEY_LEADS);
-        document.getElementById('ig').value = '';
-        document.getElementById('style').value = '';
-        document.getElementById('results').innerHTML = '';
-        updateLeadList();
-        showMessage('🗑️ すべてのデータを削除しました', 'success');
-      }
-    }
-
-    /**
-     * デバッグ情報エクスポート
-     */
-    function exportDebugInfo() {
-      const debugInfo = {
-        version: CONFIG.VERSION,
-        timestamp: new Date().toISOString(),
-        profile: JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_PROFILE) || 'null'),
-        leads: JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_LEADS) || '[]'),
-        storageUsage: JSON.stringify(localStorage).length + ' bytes',
-        userAgent: navigator.userAgent
-      };
-
-      const blob = new Blob([JSON.stringify(debugInfo, null, 2)], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `sololead_debug_${Date.now()}.json`;
-      link.click();
-      console.log('Debug Info:', debugInfo);
-      showMessage('🐛 デバッグ情報をエクスポートしました', 'success');
-    }
-
-    // ==================== 初期化 ====================
-    document.addEventListener('DOMContentLoaded', () => {
-      loadProfile();
-      updateCharCount();
-      updateLeadList();
-      document.getElementById('style').addEventListener('input', updateCharCount);
-      console.log(`SoloLead Agent v${CONFIG.VERSION} initialized`);
-    });
   </script>
 </body>
 </html>
