@@ -3,17 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoloLead Agent - AIテスト版</title>
+  <title>SoloLead Agent - オリジナル版画営業支援ツール</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f3f0 0%, #f9f7f4 100%);
+      font-family: 'Lora', serif;
+    }
+    .title-font {
+      font-family: 'Playfair Display', serif;
+      letter-spacing: -0.5px;
+    }
+    .card-elegant {
+      background: linear-gradient(135deg, #ffffff 0%, #faf8f6 100%);
+      border: 1px solid rgba(139, 101, 79, 0.15);
+    }
+    .accent-brown { color: #8b654f; }
+    .accent-bronze { color: #a88860; }
+    .bg-accent-light { background-color: #f5f0eb; }
+    .border-accent { border-color: rgba(139, 101, 79, 0.2); }
+    .button-elegant {
+      background: linear-gradient(135deg, #6b5344 0%, #8b6f47 100%);
+      transition: all 0.3s ease;
+    }
+    .button-elegant:hover {
+      box-shadow: 0 8px 24px rgba(107, 83, 68, 0.3);
+      transform: translateY(-2px);
+    }
+    .result-card {
+      background: linear-gradient(135deg, #fefdf9 0%, #f9f7f4 100%);
+      border-left: 4px solid #a88860;
+    }
+  </style>
 </head>
-<body class="bg-gray-50">
+<body>
   <div class="max-w-7xl mx-auto p-8">
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold text-center mb-2">SoloLead Agent</h1>
-      <p class="text-center text-gray-600 mb-4">オリジナル版画 AI営業支援ツール（テスト版 v1.0.0）</p>
+    <div class="mb-12 text-center">
+      <h1 class="text-5xl font-bold title-font accent-brown mb-2">SoloLead Agent</h1>
+      <p class="text-lg accent-bronze mb-2">オリジナル版画営業支援ツール</p>
+      <p class="text-sm text-gray-500 mb-4">ニッチな需要を発掘し、自然な営業をはじめる</p>
       <div class="text-center">
-        <button id="devModeToggle" onclick="toggleDevMode()" class="text-xs px-3 py-1 bg-gray-300 rounded-full text-gray-700 hover:bg-gray-400">
+        <button id="devModeToggle" onclick="toggleDevMode()" class="text-xs px-4 py-1 bg-accent-light accent-brown rounded-full hover:bg-gray-300 border border-accent text-opacity-70">
           🔧 開発者モード
         </button>
       </div>
@@ -23,51 +55,51 @@
     <div id="messageContainer" class="mb-6"></div>
 
     <!-- 開発者用パネル（非表示） -->
-    <div id="devPanel" class="hidden mb-6 p-6 bg-yellow-50 border border-yellow-200 rounded-2xl">
-      <h3 class="text-lg font-bold mb-4">🔧 開発者用パネル</h3>
-      <div class="space-y-3">
+    <div id="devPanel" class="hidden mb-6 p-6 card-elegant border-2 border-accent rounded-2xl">
+      <h3 class="text-lg font-bold accent-brown mb-4">🔧 開発者用パネル</h3>
+      <div class="space-y-3 flex flex-wrap gap-2">
         <button onclick="testValidation()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">バリデーションテスト</button>
-        <button onclick="testStorage()" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">ストレージテスト</button>
-        <button onclick="testLeadGeneration()" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">リード生成テスト</button>
-        <button onclick="clearAllData()" class="ml-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">全データ削除</button>
-        <button onclick="exportDebugInfo()" class="ml-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">デバッグ情報エクスポート</button>
+        <button onclick="testStorage()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">ストレージテスト</button>
+        <button onclick="testLeadGeneration()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">リード生成テスト</button>
+        <button onclick="clearAllData()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">全データ削除</button>
+        <button onclick="exportDebugInfo()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">デバッグ情報エクスポート</button>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <!-- プロフィール設定 -->
-      <div class="lg:col-span-1 bg-white rounded-3xl shadow p-8">
-        <h2 class="text-xl font-semibold mb-6">① 作品情報</h2>
+      <div class="lg:col-span-1 card-elegant rounded-3xl shadow-lg p-8">
+        <h2 class="text-xl font-semibold accent-brown mb-6 title-font">① 作品情報</h2>
         <div class="mb-4">
-          <label for="ig" class="block text-sm font-medium text-gray-700 mb-2">Instagram URL</label>
-          <input id="ig" type="text" placeholder="https://instagram.com/yourprintstudio" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-purple-500" value="https://instagram.com/yourprintstudio">
-          <small class="text-gray-500">有効なInstagram URLを入力してください</small>
+          <label for="ig" class="block text-sm font-medium accent-brown mb-2">Instagram URL</label>
+          <input id="ig" type="text" placeholder="https://instagram.com/yourprintstudio" class="w-full px-4 py-3 border border-accent bg-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent-brown focus:ring-opacity-50" value="https://instagram.com/yourprintstudio">
+          <small class="text-gray-600">有効なInstagram URLを入力してください</small>
         </div>
         <div class="mb-6">
-          <label for="style" class="block text-sm font-medium text-gray-700 mb-2">作品スタイル <span class="text-gray-500">(最大200文字)</span></label>
-          <textarea id="style" placeholder="作品スタイル" class="w-full h-32 px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-purple-500" maxlength="200">和風木版画、自然モチーフ、繊細な手刷り</textarea>
-          <div class="text-xs text-gray-500 mt-1"><span id="charCount">47</span>/200</div>
+          <label for="style" class="block text-sm font-medium accent-brown mb-2">作品スタイル <span class="text-gray-500">(最大200文字)</span></label>
+          <textarea id="style" placeholder="作品スタイル" class="w-full h-32 px-4 py-3 border border-accent bg-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent-brown focus:ring-opacity-50" maxlength="200">和風木版画、自然モチーフ、繊細な手刷り</textarea>
+          <div class="text-xs text-gray-600 mt-1"><span id="charCount">47</span>/200</div>
         </div>
-        <button id="saveBtn" onclick="saveProfile()" class="mt-6 w-full bg-black text-white py-4 rounded-2xl hover:bg-gray-800 transition">情報を保存</button>
+        <button id="saveBtn" onclick="saveProfile()" class="mt-6 w-full button-elegant text-white py-4 rounded-2xl font-semibold">💾 情報を保存</button>
       </div>
 
       <!-- リード管理＆検索 -->
-      <div class="lg:col-span-3 bg-white rounded-3xl shadow p-8">
-        <h2 class="text-xl font-semibold mb-6">② ニッチな需要を探す</h2>
-        <button id="searchBtn" onclick="startSearch()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-6 rounded-3xl text-xl font-bold mb-8 hover:opacity-90 transition disabled:opacity-50">
+      <div class="lg:col-span-3 card-elegant rounded-3xl shadow-lg p-8">
+        <h2 class="text-xl font-semibold accent-brown mb-6 title-font">② ニッチな需要を探す</h2>
+        <button id="searchBtn" onclick="startSearch()" class="w-full button-elegant text-white py-6 rounded-3xl text-xl font-bold mb-8">
           🔍 AIでニッチな需要を探す
         </button>
         
         <!-- リード結果 -->
-        <div id="results" class="space-y-6"></div>
+        <div id="results" class="space-y-4"></div>
         
         <!-- リード一覧 -->
-        <div class="mt-8 pt-8 border-t">
-          <h3 class="text-lg font-semibold mb-4">発掘済みリード一覧</h3>
+        <div class="mt-8 pt-8 border-t border-accent">
+          <h3 class="text-lg font-semibold accent-brown mb-4 title-font">発掘済みリード一覧</h3>
           <div id="leadList" class="space-y-3">
             <p class="text-gray-500">リードはまだありません</p>
           </div>
-          <button id="exportBtn" onclick="exportLeads()" class="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 hidden">📊 CSV エクスポート</button>
+          <button id="exportBtn" onclick="exportLeads()" class="mt-4 px-4 py-2 button-elegant text-white rounded-lg hover:opacity-90 hidden">📊 CSV エクスポート</button>
         </div>
       </div>
     </div>
@@ -149,12 +181,15 @@
      */
     function showMessage(message, type = 'info') {
       const container = document.getElementById('messageContainer');
-      const bgColor = type === 'error' ? 'bg-red-50 border-red-200' : type === 'success' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200';
-      const textColor = type === 'error' ? 'text-red-700' : type === 'success' ? 'text-green-700' : 'text-blue-700';
+      const colors = {
+        error: 'bg-red-50 border-red-200 text-red-700',
+        success: 'bg-green-50 border-green-200 text-green-700',
+        info: 'bg-blue-50 border-blue-200 text-blue-700'
+      };
       const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
 
       const msgDiv = document.createElement('div');
-      msgDiv.className = `${bgColor} border rounded-2xl p-4 ${textColor} flex justify-between items-center`;
+      msgDiv.className = `${colors[type]} border rounded-2xl p-4 flex justify-between items-center`;
       msgDiv.innerHTML = `
         <span>${icon} ${escapeHtml(message)}</span>
         <button onclick="this.parentElement.remove()" class="hover:opacity-70 ml-2">✕</button>
@@ -295,7 +330,7 @@
       // ローディング表示
       const loadingEl = document.createElement('div');
       loadingEl.className = 'text-center py-10';
-      loadingEl.innerHTML = '<p class="text-gray-500">🔄 AIが検索中です...</p>';
+      loadingEl.innerHTML = '<p class="text-gray-600">🔄 AIが最適なニッチ層を分析中です...</p>';
       results.innerHTML = '';
       results.appendChild(loadingEl);
 
@@ -304,49 +339,55 @@
         try {
           results.innerHTML = '';
 
-          // ランダムにモックリードを選択
-          const mockLead = CONFIG.MOCK_LEADS[Math.floor(Math.random() * CONFIG.MOCK_LEADS.length)];
+          // 5件のリードを表示
+          const leadsToShow = CONFIG.MOCK_LEADS.slice(0, 5);
           
-          // リード生成
-          const lead = {
-            segment: mockLead.segment,
-            matchScore: mockLead.matchScore,
-            source: mockLead.source,
-            sourceText: mockLead.sourceText,
-            matchReasons: mockLead.matchReasons
-          };
+          leadsToShow.forEach((mockLead, index) => {
+            // リード生成
+            const lead = {
+              segment: mockLead.segment,
+              matchScore: mockLead.matchScore,
+              source: mockLead.source,
+              sourceText: mockLead.sourceText,
+              matchReasons: mockLead.matchReasons
+            };
 
-          // UI表示
-          const resultDiv = document.createElement('div');
-          resultDiv.className = 'bg-emerald-50 border-2 border-emerald-200 rounded-3xl p-6';
+            // UI表示
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result-card rounded-2xl p-6';
 
-          const dmMessage = generateDMMessage(mockLead.sourceText, mockLead.matchReasons);
+            const dmMessage = generateDMMessage(mockLead.sourceText, mockLead.matchReasons, mockLead.segment);
 
-          resultDiv.innerHTML = `
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <p class="font-semibold text-emerald-700 text-lg">マッチ度 ${Math.round(mockLead.matchScore * 100)}% 🎯</p>
-                <p class="text-emerald-600 mt-1">${escapeHtml(mockLead.segment)}</p>
+            resultDiv.innerHTML = `
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-2xl">✨</span>
+                    <p class="font-semibold accent-bronze text-lg">マッチ度 ${Math.round(mockLead.matchScore * 100)}%</p>
+                  </div>
+                  <p class="accent-brown font-medium text-base">${escapeHtml(mockLead.segment)}</p>
+                </div>
+                <span class="px-3 py-1 bg-gray-200 rounded-full text-sm text-gray-700">${mockLead.source}</span>
               </div>
-              <span class="px-3 py-1 bg-emerald-200 rounded-full text-sm text-emerald-800">${mockLead.source}</span>
-            </div>
-            
-            <p class="mt-2 text-sm text-gray-600 italic">「${escapeHtml(mockLead.sourceText)}」</p>
-            
-            <p class="mt-3 text-xs text-gray-500">マッチ理由: ${mockLead.matchReasons.map(r => escapeHtml(r)).join(' • ')}</p>
-            
-            <div class="mt-5 bg-white p-5 rounded-2xl text-sm whitespace-pre-wrap text-gray-800 border-l-4 border-emerald-400">
+              
+              <p class="mt-3 text-sm text-gray-700 italic border-l-2 border-accent-bronze pl-3">「${escapeHtml(mockLead.sourceText)}」</p>
+              
+              <p class="mt-3 text-xs text-gray-600">マッチ理由: ${mockLead.matchReasons.map(r => escapeHtml(r)).join(' • ')}</p>
+              
+              <div class="mt-5 bg-white p-4 rounded-lg text-sm whitespace-pre-wrap text-gray-800 border border-accent text-base leading-relaxed">
 ${escapeHtml(dmMessage)}
-            </div>
-            
-            <div class="mt-4 flex gap-2">
-              <button onclick="copyText(this)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition">📋 DM文をコピー</button>
-              <button onclick="saveLead('${escapeHtml(JSON.stringify(lead))}', this)" class="px-4 py-2 bg-emerald-500 text-white rounded-lg text-sm hover:bg-emerald-600 transition">💾 このリードを保存</button>
-            </div>
-          `;
+              </div>
+              
+              <div class="mt-4 flex gap-2 flex-wrap">
+                <button onclick="copyText(this)" class="px-4 py-2 button-elegant text-white text-sm rounded-lg">📋 DM文をコピー</button>
+                <button onclick="saveLead('${escapeHtml(JSON.stringify(lead))}', this)" class="px-4 py-2 button-elegant text-white text-sm rounded-lg">💾 このリードを保存</button>
+              </div>
+            `;
 
-          results.appendChild(resultDiv);
-          showMessage('🎉 新しいリードを発見しました！', 'success');
+            results.appendChild(resultDiv);
+          });
+
+          showMessage('🎉 5件のニッチな需要を発見しました。最も相応しいリードをお選びください。', 'success');
 
         } catch (e) {
           showMessage('検索中にエラーが発生しました: ' + e.message, 'error');
@@ -361,13 +402,22 @@ ${escapeHtml(dmMessage)}
     /**
      * DM文生成（モック）
      */
-    function generateDMMessage(sourceText, matchReasons) {
+    function generateDMMessage(sourceText, matchReasons, segment) {
       const templates = [
-        `${matchReasons[0]}についてのご投稿を拝見させていただきました。\n私の手刷り版画作品がご参考になるかと思いご連絡させていただきました。\n\n作品はこちらのInstagramでご覧いただけます：\n→ [あなたのInstagram]\n\nいかがでしょうか？`,
-        
-        `ご投稿ありがとうございます。\nまさに${matchReasons[0]}をお探しのようですね。\n私の版画作品の中に、お気に召すものがあればと思いました。\n\n作品を確認いただければ幸いです：\n→ [あなたのInstagram]`,
-        
-        `こんにちは！${matchReasons[0]}についてのご投稿を拝見しました。\n私も同じく${matchReasons.slice(0, 2).join('と')}を大切にしている作家です。\n\n作品をご紹介できればと思い、ご連絡させていただきました：\n→ [あなたのInstagram]\n\nご興味があれば、お気軽にお尋ねください😊`
+        // テンプレート1: 丁寧で共感的なアプローチ
+        `こんにちは。\n\nご投稿を拝見させていただき、${matchReasons[0]}についてのお気持ちが伝わってきました。\n\n実は、私も同じように${matchReasons[0]}の大切さを感じながら、日々手刷り版画の制作をしています。\n\nあなたのお探しの世界観が、私の作品の中にあるかもしれません。\n\nよろしければ、一度作品をご覧いただけますでしょうか？\n→ [あなたのInstagram]\n\n何かご質問やご感想があれば、お気軽にお返事ください。\nこちらこそ、素敵な出会いを楽しみにしています。`,
+
+        // テンプレート2: 親切・専門的なアプローチ
+        `こんにちは。\n\nあるとき、ご投稿が目に留まりました。\n${matchReasons.join('と')}についての真摯な想いが感じられたので、ご連絡させていただきました。\n\n私は、手刷りの版画を通じて、ものごとの本質的な美しさを表現する活動をしています。\n\nも、しあなたのお探しの「何か」が私の作品の中にあれば、幸いです。\n\n気になることやご質問があれば、ぜひお尋ねください。\nInstagramでは、制作の過程や想いも綴っています。\n→ [あなたのInstagram]\n\nご訪問をお待ちしています。`,
+
+        // テンプレート3: 親身で個性的なアプローチ
+        `おはようございます。\n\nいつも素敵な投稿をされているあなたの${matchReasons[0]}に関するお考えが、本当に素敵だなと感じていました。\n\n私は版画制作を通じて、${matchReasons[0]}の素晴らしさを多くの方に知ってもらいたいと活動しています。\n\nあなたのお気持ちや求めるスタイルが、私の作品の中に見つかるかもしれません。\n\n一度、Instagramでご紹介している作品をご覧になっていただけますでしょうか？\n→ [あなたのInstagram]\n\nご縁がありましたら、お返事をいただけますと嬉しいです。`,
+
+        // テンプレート4: 简潔で心をこめたアプローチ
+        `はじめまして。\n\nあなたのご投稿から、${matchReasons[0]}への想いが伝わってきました。\n\n私も、その世界観を大切にしながら、毎日手刷り版画の制作に向き合っています。\n\nもしよろしければ、私の作品を見ていただきたいです。\nあなたが求めるものが、少しでもお役に立てると幸いです。\n\nInstagramはこちら → [あなたのInstagram]\n\nご訪問をお待ちしています。`,
+
+        // テンプレート5: 優雅で洗練されたアプローチ
+        `こんにちは。\n\nご投稿を拝見させていただき、このような素敵な出会いをいただきました。\n\n${matchReasons[0]}という、あなたの大切にされていることが、私の版画制作の根底にもあります。\n\n伝統的な手刷り技法で表現した世界観が、あなたの空間や心に寄り添えるかもしれません。\n\nぜひ一度、私の作品の世界をのぞいてみてください。\nInstagram → [あなたのInstagram]\n\nご感想やご質問を、心よりお待ち申し上げています。`
       ];
 
       return templates[Math.floor(Math.random() * templates.length)];
@@ -424,18 +474,19 @@ ${escapeHtml(dmMessage)}
       const exportBtn = document.getElementById('exportBtn');
 
       if (leads.length === 0) {
-        leadList.innerHTML = '<p class="text-gray-500">リードはまだありません</p>';
+        leadList.innerHTML = '<p class="text-gray-500 italic">リードはまだありません。「AIでニッチな需要を探す」から始めましょう。</p>';
         exportBtn.classList.add('hidden');
       } else {
         exportBtn.classList.remove('hidden');
         leadList.innerHTML = leads.map((lead, idx) => `
-          <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div class="result-card rounded-lg p-4 border-l-4">
             <div class="flex justify-between items-start">
-              <div>
-                <p class="font-semibold">${escapeHtml(lead.segment)}</p>
-                <p class="text-sm text-gray-600 mt-1">マッチ度: ${Math.round(lead.matchScore * 100)}% • ${lead.source}</p>
+              <div class="flex-1">
+                <p class="font-semibold accent-brown">${escapeHtml(lead.segment)}</p>
+                <p class="text-sm text-gray-600 mt-1">マッチ度: <span class="font-semibold">${Math.round(lead.matchScore * 100)}%</span> • ${lead.source}</p>
+                <p class="text-xs text-gray-500 mt-2">${new Date(lead.createdAt).toLocaleString('ja-JP')}</p>
               </div>
-              <button onclick="deleteLead(${idx})" class="text-red-500 hover:text-red-700 text-sm">削除</button>
+              <button onclick="deleteLead(${idx})" class="text-gray-400 hover:text-red-500 transition ml-2">✕</button>
             </div>
           </div>
         `).join('');
