@@ -23,6 +23,10 @@
         <button onclick="startAISearch()" class="mt-8 w-full bg-gradient-to-r from-amber-500 to-orange-500 py-5 rounded-2xl text-lg font-bold">
           AIで需要を探す
         </button>
+        
+        <button id="downloadBtn" onclick="downloadLeads()" class="mt-3 w-full bg-zinc-700 hover:bg-zinc-600 py-3 rounded-2xl text-sm font-medium hidden">
+          📥 結果をダウンロード
+        </button>
       </div>
 
       <div class="lg:col-span-8">
@@ -33,6 +37,8 @@
 
 
   <script>
+    let currentLeads = [];
+
     async function startAISearch() {
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = `
@@ -42,13 +48,14 @@
         </div>`;
 
       setTimeout(() => {
-        const leads = [
+        const allLeads = [
           {
             handle: "newhome_lover2026",
             name: "新築のお家を丁寧に整えている方",
             reason: "Instagramで「新居 壁飾り アート 落ち着く」と投稿",
             match: 93,
             igLink: "https://www.instagram.com/newhome_lover2026/",
+            dmAvailable: true,
             dm: "新居おめでとうございます。\n\nお引っ越しという大切なタイミングで、空間に長く寄り添う作品をお探しではないかと思い、ご連絡させていただきました。\n\n私は和の静けさや自然の息吹をモチーフにした手刷りの版画を制作しています。もし少しでも気になられましたら、作品をご覧いただけますと幸いです。"
           },
           {
@@ -57,6 +64,7 @@
             reason: "結婚祝いに想いのこもった一点物を探されている様子",
             match: 88,
             igLink: "https://www.instagram.com/yukari_wedding/",
+            dmAvailable: true,
             dm: "結婚おめでとうございます。\n\n大切な人生の節目に、心に残る贈り物をお探しの方が多いようですね。\n\n私は特別な日にふさわしい、一点物の版画を丁寧に手刷りしています。よろしければ作品をご覧ください。"
           },
           {
@@ -65,13 +73,90 @@
             reason: "和風版画や木版画関連の投稿を頻繁にいいね・保存",
             match: 91,
             igLink: "https://www.instagram.com/artcollector_kyoto/",
+            dmAvailable: true,
             dm: "いつも和風版画を熱心にご覧いただきありがとうございます。\n\n限定エディションの新作がございますので、ぜひ一度作品をご覧いただけますでしょうか。"
+          },
+          {
+            handle: "interior_design_tokyo",
+            name: "インテリアデザイナー",
+            reason: "クライアント向けアート作品を常に探索中",
+            match: 86,
+            igLink: "https://www.instagram.com/interior_design_tokyo/",
+            dmAvailable: true,
+            dm: "いつも素敵なインテリアコーディネートをされているのですね。\n\n我が版画作品はクライアント向けの特別なギフトにも最適です。ぜひプロフィール確認の上、お気軽にご連絡ください。"
+          },
+          {
+            handle: "traditional_art_lover",
+            name: "日本の伝統芸術愛好家",
+            reason: "版画、浮世絵、日本工芸の投稿が中心",
+            match: 89,
+            igLink: "https://www.instagram.com/traditional_art_lover/",
+            dmAvailable: true,
+            dm: "日本の伝統芸術への深い造詣が伝わります。\n\n当工房の手刷り版画も、江戸の伝統を受け継ぎながら現代的な表現を行っています。ぜひご鑑賞ください。"
+          },
+          {
+            handle: "gift_curator_jp",
+            name: "ギフト選定アドバイザー",
+            reason: "特別な贈り物の提案を頻繁に投稿",
+            match: 84,
+            igLink: "https://www.instagram.com/gift_curator_jp/",
+            dmAvailable: false,
+            dm: "このアカウントはDMが制限されているため、直接メッセージが送信できません。"
+          },
+          {
+            handle: "art_gallery_manager",
+            name: "ギャラリー運営者",
+            reason: "新進気鋭のアーティスト作品を常に探索",
+            match: 87,
+            igLink: "https://www.instagram.com/art_gallery_manager/",
+            dmAvailable: true,
+            dm: "当ギャラリーでも新しい視点の版画作品を探しております。\n\nぜひ一度作品をご紹介いただき、展示の可能性についてお話しさせていただきたいのですが、いかがでしょうか。"
+          },
+          {
+            handle: "museum_curator_kyoto",
+            name: "京都の美術館学芸員",
+            reason: "日本の伝統工芸作品の調査研究が専門分野",
+            match: 92,
+            igLink: "https://www.instagram.com/museum_curator_kyoto/",
+            dmAvailable: true,
+            dm: "当館では年間を通じて版画や伝統工芸についての企画展を考えておりますが、貴工房の作品について詳しくお伺いしたく存じます。"
+          },
+          {
+            handle: "exclusive_artisan",
+            name: "高級品セレクターの著名人",
+            reason: "限定版画・手刷り作品への高い関心",
+            match: 90,
+            igLink: "https://www.instagram.com/exclusive_artisan/",
+            dmAvailable: false,
+            dm: "このアカウントはプライベートアカウントのため、ダイレクトメッセージが制限されています。"
+          },
+          {
+            handle: "art_investment_advisor",
+            name: "アート投資顧問",
+            reason: "将来性のある若手アーティスト作品を投資対象として調査",
+            match: 85,
+            igLink: "https://www.instagram.com/art_investment_advisor/",
+            dmAvailable: true,
+            dm: "版画作品の投資的価値について、市場分析をさせていただきたくお問い合わせしております。\n\nご都合つきましたら、詳しくお聞かせください。"
+          },
+          {
+            handle: "corporate_art_buyer",
+            name: "企業ロビー向けアート購買担当",
+            reason: "企業用アート作品を年間を通じて調査選定",
+            match: 83,
+            igLink: "https://www.instagram.com/corporate_art_buyer/",
+            dmAvailable: true,
+            dm: "当社では企業ロビー用の高品質な版画作品を探しており、貴工房の作品に強い関心をもっております。\n\nサンプル資料送付いただけますでしょうか。"
           }
         ];
 
-        let html = '<h3 class="text-lg font-medium mb-6 text-zinc-400">AIが発見した可能性の高いアカウント</h3>';
+        // DM可能なアカウントのみフィルタリング
+        currentLeads = allLeads.filter(lead => lead.dmAvailable);
 
-        leads.forEach(lead => {
+        let html = `<h3 class="text-lg font-medium mb-2 text-zinc-400">AIが発見した可能性の高いアカウント</h3>`;
+        html += `<p class="text-xs text-zinc-500 mb-6">✓ DM送信可能なアカウント: ${currentLeads.length}件 / 全調査: ${allLeads.length}件</p>`;
+
+        currentLeads.forEach(lead => {
           html += `
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-7 hover:border-amber-500/30 transition-all">
               <div class="flex justify-between items-start">
@@ -99,12 +184,11 @@
                   📋 DM文をコピー
                 </button>
               </div>
-              
-              <p class="text-[10px] text-zinc-500 mt-4 text-center">※ DMが解放されていない可能性があります。プロフィール確認後、メッセージを送ってください。</p>
             </div>`;
         });
 
         resultsDiv.innerHTML = html;
+        document.getElementById('downloadBtn').classList.remove('hidden');
       }, 2000);
     }
 
@@ -115,6 +199,37 @@
         btn.innerHTML = '✅ コピーしました！';
         setTimeout(() => { btn.innerHTML = original; }, 2500);
       });
+    }
+
+    function downloadLeads() {
+      if (currentLeads.length === 0) {
+        alert('ダウンロードするリードがありません。先に「AIで需要を探す」を実行してください。');
+        return;
+      }
+
+      // CSV形式で生成
+      const headers = ['ハンドル', 'アカウント名', '発見理由', 'マッチ度', 'InstagramURL', 'DM例'];
+      const rows = currentLeads.map(lead => [
+        lead.handle,
+        lead.name,
+        lead.reason,
+        lead.match + '%',
+        lead.igLink,
+        lead.dm.replace(/\n/g, ' ')
+      ]);
+
+      // CSV形式に変換
+      let csv = headers.map(h => `"${h}"`).join(',') + '\n';
+      csv += rows.map(row => 
+        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+
+      // ファイルダウンロード
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `sololead_accounts_${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
     }
   </script>
 </body>
