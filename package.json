@@ -1,0 +1,30 @@
+{
+  "name": "sololead-agent",
+  "version": "1.0.0",
+  "description": "オリジナル版画アーティストのためのニッチ需要発掘＆Instagram DM自動化ツール",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "test": "node test/unit.test.js",
+    "dev": "echo '🚀 Starting development server...'; python -m http.server 8000"
+  },
+  "keywords": [
+    "instagram",
+    "sales",
+    "ai",
+    "lead-generation",
+    "dm-automation"
+  ],
+  "author": "djatomy",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djatomy/sololead-agent.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
