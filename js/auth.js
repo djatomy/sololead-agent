@@ -4,7 +4,7 @@ class InstagramAuth {
     this.appId = '1957511428186858';
     this.appSecret = '794e0ea2e0e9706a8eed75cc9a6c57ae';
     this.redirectUri = window.location.origin + '/auth/callback';
-    this.scope = 'instagram_basic';
+    this.scope = 'user_profile,user_media';
     this.accessToken = null;
   }
 
