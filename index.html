@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>類似アカウント検索ツール - Similarity Finder</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></script>
+  <script src="https://unpkg.com/axios@1.6.0/dist/axios.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/instagram-api.js"></script>
 </head>
 <body class="bg-zinc-950 text-white">
   <div class="max-w-7xl mx-auto p-8">
@@ -15,6 +18,17 @@
         <i class="fas fa-search"></i> 類似アカウント検索ツール
       </h1>
       <p class="text-zinc-400 mt-3">あなたのアカウント情報から、類似したターゲット層を自動検出</p>
+      
+      <!-- Authentication Status -->
+      <div id="authStatus" class="mt-4">
+        <button id="authButton" onclick="authenticateInstagram()" 
+          class="bg-pink-600 hover:bg-pink-700 px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 mx-auto">
+          <i class="fab fa-instagram"></i> Instagramでログイン
+        </button>
+        <div id="authSuccess" class="hidden text-green-400 mt-2">
+          <i class="fas fa-check-circle"></i> Instagram認証済み
+        </div>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -126,8 +140,47 @@
     let currentKeywords = [];
     let currentResults = [];
     let personaDatabase = [];
+    let instagramAuth = new InstagramAuth();
+    let instagramAPI = new InstagramAPI(instagramAuth);
+    let useInstagramAPI = false; // Toggle between mock data and real API
 
-    // ================== ペルソナDB初期化 ==================
+    // ================== 初期化 ==================
+    document.addEventListener('DOMContentLoaded', function() {
+      initPersonaDatabase();
+      checkAuthentication();
+      handleAuthCallback();
+    });
+
+    // ================== Instagram認証 ==================
+    function authenticateInstagram() {
+      instagramAuth.login();
+    }
+
+    function checkAuthentication() {
+      if (instagramAuth.isAuthenticated()) {
+        document.getElementById('authButton').classList.add('hidden');
+        document.getElementById('authSuccess').classList.remove('hidden');
+        useInstagramAPI = true;
+      }
+    }
+
+    async function handleAuthCallback() {
+      if (window.location.search.includes('code=')) {
+        const success = await instagramAuth.handleCallback();
+        if (success) {
+          checkAuthentication();
+          showMessage('Instagram認証が完了しました！', 'success');
+        } else {
+          showMessage('Instagram認証に失敗しました。', 'error');
+        }
+      }
+    }
+
+    // ================== メッセージ表示 ==================
+    function showMessage(message, type = 'info') {
+      // Simple alert for now - could be enhanced with toast notifications
+      alert(message);
+    }
     function initPersonaDatabase() {
       personaDatabase = [
         // === カテゴリ1: 製造・メーカー／食品・飲料 ===
@@ -283,7 +336,7 @@
     }
 
     // ================== 検索実行 ==================
-    function startSimilaritySearch() {
+    async function startSimilaritySearch() {
       if (currentKeywords.length === 0) {
         alert('キーワードを抽出・設定してから検索してください。');
         return;
@@ -293,12 +346,52 @@
       resultsDiv.innerHTML = `
         <div class="text-center py-20">
           <i class="fas fa-spinner fa-spin text-5xl text-blue-400"></i>
-          <p class="mt-6 text-zinc-400">類似アカウントを検索中...<br>キーワード分析 → マッチング → ランキング</p>
+          <p class="mt-6 text-zinc-400">${useInstagramAPI ? 'Instagramから本物のデータを検索中...' : '類似アカウントを検索中...'}<br>キーワード分析 → マッチング → ランキング</p>
         </div>`;
 
-      setTimeout(() => {
-        performSimilaritySearch();
-      }, 2000);
+      try {
+        if (useInstagramAPI) {
+          await performInstagramSearch();
+        } else {
+          setTimeout(() => {
+            performSimilaritySearch();
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+        resultsDiv.innerHTML = `
+          <div class="text-center py-20 text-red-400">
+            <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+            <p>検索中にエラーが発生しました。${error.message}</p>
+            <button onclick="startSimilaritySearch()" class="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+              再試行
+            </button>
+          </div>`;
+      }
+    }
+
+    async function performInstagramSearch() {
+      const resultsDiv = document.getElementById('resultsContainer');
+
+      try {
+        const leads = await instagramAPI.searchLeads(currentKeywords, 20);
+
+        currentResults = leads.map(lead => ({
+          handle: lead.sourceUrl.split('/').pop() || 'unknown',
+          name: `Instagram User (${lead.segment})`,
+          followers: Math.floor(Math.random() * 50000) + 1000, // Mock follower count
+          keywords: lead.matchReasons,
+          segment: lead.segment,
+          igLink: lead.sourceUrl,
+          matchScore: Math.round(lead.matchScore * 100),
+          commonKeywords: lead.matchReasons,
+          dm: `あなたの投稿「${lead.sourceText.substring(0, 50)}...」に興味を持っています。`
+        }));
+
+        displayResults();
+      } catch (error) {
+        throw new Error('Instagram検索に失敗しました。認証を確認してください。');
+      }
     }
 
     function performSimilaritySearch() {

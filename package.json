@@ -17,6 +17,9 @@
   ],
   "author": "djatomy",
   "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
   "devDependencies": {
     "jest": "^29.0.0"
   },
