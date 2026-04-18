@@ -3,7 +3,7 @@
 **TL;DR** - Replace hardcoded persona database with real Instagram hashtag search using Graph API, add security measures for safe API usage.
 
 **Steps**
-1. Set up Facebook app configuration with provided app ID (1957511428186858) and obtain app secret
+1. Set up Facebook app configuration with provided app ID (1957511428186858) and app secret (794e0ea2e0e9706a8eed75cc9a6c57ae)
 2. Implement OAuth 2.0 authentication flow for Instagram business account access
 3. Create API client module for Instagram Graph API calls (hashtag search, media retrieval)
 4. Update search functionality to use real Instagram data instead of hardcoded database
